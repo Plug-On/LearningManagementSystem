@@ -40,7 +40,7 @@ const Footer = () => {
             </div>
             <div className='row copyright'>
                 <div className='col-md-12 text-center py-4'>
-                    &copy; 2025 All Rights Reserverd
+                    &copy; 2083 All Rights Reserverd
                 </div>
             </div>
         </div>

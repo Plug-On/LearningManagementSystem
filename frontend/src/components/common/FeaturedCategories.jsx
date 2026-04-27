@@ -41,12 +41,12 @@ const FeaturedCategories = () => {
                 </div>
                 <div className='col-6 col-md-6 col-lg-3' >
                     <div className='card shadow border-0'>
-                        <div className='card-body'><a href="">Fiance</a></div>
+                        <div className='card-body'><a href="">Finance</a></div>
                     </div>
                 </div>
                 <div className='col-6 col-md-6 col-lg-3' >
                     <div className='card shadow border-0'>
-                        <div className='card-body'><a href="">Graphic Design</a></div>
+                        <div className='card-body'><a href="">Graphics Design</a></div>
                     </div>
                 </div>
             </div>      

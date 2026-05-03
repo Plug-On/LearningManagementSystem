@@ -9,6 +9,7 @@ import MyCourses from './components/account/MyCourses';
 import MyLearning from './components/account/MyLearning';
 import WatchCourse from './components/account/WatchCourse';
 import ChangePassword from './components/account/ChangePassword';
+import { Toaster } from 'react-hot-toast';
 
 
 
@@ -44,6 +45,11 @@ function App() {
 
         </Routes>
       </BrowserRouter>
+
+        <Toaster
+            position="top-center"
+            reverseOrder={false}
+          />
     </>
   )
 }

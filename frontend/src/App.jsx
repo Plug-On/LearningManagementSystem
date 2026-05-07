@@ -9,7 +9,9 @@ import MyCourses from './components/account/MyCourses';
 import MyLearning from './components/account/MyLearning';
 import WatchCourse from './components/account/WatchCourse';
 import ChangePassword from './components/account/ChangePassword';
+import Dashboard from './components/account/Dashboard';
 import { Toaster } from 'react-hot-toast';
+import { RequireAuth } from './components/common/RequireAuth';
 
 
 
@@ -32,6 +34,15 @@ function App() {
           <Route path='/account/courses-enrolled' element={<MyLearning/>} />
           <Route path='/account/watch-course' element={<WatchCourse/>} />
           <Route path='/account/change-password' element={<ChangePassword/>} />
+
+
+
+          <Route path='/account/dashboard' element={
+            <RequireAuth>
+            <Dashboard/>
+        </RequireAuth>
+        } />
+          
 
 
 

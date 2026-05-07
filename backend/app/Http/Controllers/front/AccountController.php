@@ -5,6 +5,7 @@ namespace App\Http\Controllers\front;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
@@ -23,7 +24,7 @@ class AccountController extends Controller
             return response()->json([
                 'status' =>400,
                 'errors' => $validator->errors()
-            ]);
+            ],400);
         }
 
         //Now save user info in database
@@ -38,5 +39,41 @@ class AccountController extends Controller
             'message' => 'User Registered successfully.'
         ],200);
 
+    }
+
+    public function authenticate(Request $request){
+            $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        //This will return validation error
+        if($validator-> fails()){
+            return response()->json([
+                'status' =>400,
+                'errors' => $validator->errors()
+            ],400);
+        }
+
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+
+            $user = User::find(Auth::user()->id);
+            $token = $user->createToken('token')->plainTextToken;
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'User authenticated successfully.',
+                'token' => $token,
+                'name' => $user->name,
+                'id' => Auth::user()->id
+            ],200);
+
+        } else {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Invalid email or password.'
+            ],401);
+
+        }
     }
 }

@@ -1,6 +1,6 @@
 import React from 'react'
-import Layout from '../common/Layout'
-import UserSidebar from '../common/UserSidebar'
+import Layout from '../../common/Layout'
+import UserSidebar from '../../common/UserSidebar'
 import { Link } from 'react-router-dom'
 
 const Dashboard = () => {

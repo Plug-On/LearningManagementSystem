@@ -1,5 +1,5 @@
 import React from 'react'
-import Layout from '../common/Layout'
+import Layout from '../../common/Layout'
 import Accordion from 'react-bootstrap/Accordion';
 import { MdSlowMotionVideo } from "react-icons/md";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";

@@ -1,7 +1,7 @@
 import React from 'react'
-import UserSidebar from '../common/UserSidebar'
-import CourseEnrolled from '../common/CourseEnrolled'
-import Layout from '../common/Layout'
+import UserSidebar from '../../common/UserSidebar'
+import CourseEnrolled from '../../common/CourseEnrolled'
+import Layout from '../../common/Layout'
 
 const MyLearning = () => {
   return (

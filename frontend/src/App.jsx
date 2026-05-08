@@ -5,13 +5,14 @@ import Courses from './components/pages/Courses';
 import Detail from './components/pages/Detail';
 import Login from './components/pages/Login';
 import Register from './components/pages/Register';
-import MyCourses from './components/account/MyCourses';
-import MyLearning from './components/account/MyLearning';
-import WatchCourse from './components/account/WatchCourse';
-import ChangePassword from './components/account/ChangePassword';
-import Dashboard from './components/account/Dashboard';
+import MyCourses from './components/pages/account/MyCourses';
+import MyLearning from './components/pages/account/MyLearning';
+import WatchCourse from './components/pages/account/WatchCourse';
+import ChangePassword from './components/pages/account/ChangePassword';
+import Dashboard from './components/pages/account/Dashboard';
 import { Toaster } from 'react-hot-toast';
 import { RequireAuth } from './components/common/RequireAuth';
+import CreateCourse from './components/pages/account/courses/CreateCourse';
 
 
 
@@ -44,14 +45,11 @@ function App() {
         } />
           
 
-
-
-
-
-
-          
-
-
+          <Route path='/account/courses/create' element={
+            <RequireAuth>
+            <CreateCourse/>
+        </RequireAuth>
+        } />
 
 
         </Routes>

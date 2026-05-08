@@ -1,8 +1,8 @@
 import React from 'react'
-import Layout from '../common/Layout'
+import Layout from '../../common/Layout'
 import { Link } from 'react-router-dom'
-import UserSidebar from '../common/UserSidebar'
-import EditCourse from '../common/EditCourse'
+import UserSidebar from '../../common/UserSidebar'
+import EditCourse from '../../common/EditCourse'
 
 const MyCourses = () => {
   return (

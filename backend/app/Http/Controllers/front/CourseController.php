@@ -75,4 +75,49 @@ class CourseController extends Controller
             'languages' => $languages,
         ],200);
     }
+
+       //This method will update a course in basic data
+    public function update ($id, Request $request) {
+
+        $course = Course::find($id);
+
+        if($course === null) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Course not found.'
+            ],404);
+        }
+
+        $validator = Validator::make($request->all(),[
+            'title' => 'required|min:5',
+            'category' => 'required',
+            'level' => 'required',
+            'language' => 'required',
+            'sell_price' => 'required',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'errors' => $validator->errors()
+            ],400);
+        }
+
+    //This will update course in DB
+    $course->title = $request->title;
+    $course->category_id = $request->category;
+    $course->level_id = $request->level;
+    $course->language_id = $request->language;
+    $course->price = $request->sell_price;
+    $course->cross_price = $request->cross_price;
+    $course->description = $request->description;
+    $course->save();
+
+    return response()->json([
+                'status' => 200,
+                'data' => $course,
+                'message' => 'Course has been updated successfully.'
+            ],200);
+
+    }
 }

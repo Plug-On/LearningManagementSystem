@@ -6,9 +6,11 @@ import { useForm } from 'react-hook-form'
 import { apiUrl, token } from '../../../common/config'
 import toast from 'react-hot-toast'
 
+
 const EditCourse = () => {
     const params = useParams();
-    const { register, handleSubmit, formState: {errors}, reset} = useForm({
+    const [loading, setLoading] = useState(false);
+    const { register, handleSubmit, formState: {errors}, reset, setError} = useForm({
         defaultValues: async () => {
             await fetch(`${apiUrl}/courses/${params.id}`, {
             method: 'GET',
@@ -26,10 +28,10 @@ const EditCourse = () => {
                     title: result.data.title,
                     category: result.data.category_id,
                     level: result.data.level_id,
-                    languages: result.data.language_id,
+                    language: result.data.language_id,
                     description: result.data.description,
-                    'sell-price': result.data.sell_price,
-                    'cross-price': result.data.cross_price
+                    'sell_price': result.data.price,
+                    'cross_price': result.data.cross_price
                 })
             } else {
             //    toast.error(result.message);
@@ -45,8 +47,9 @@ const EditCourse = () => {
     const [languages, setLanguages] = useState([]);
 
     const onSubmit = async (data) =>{
-         await fetch(`${apiUrl}/courses`, {
-            method: 'POST',
+        setLoading(true);
+         await fetch(`${apiUrl}/courses/${params.id}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept' : 'application/json',
@@ -56,12 +59,14 @@ const EditCourse = () => {
         })
         .then(res => res.json())
         .then(result => {
-            
+            setLoading(false);
             if (result.status == 200){
                 toast.success(result.message);
-                 navigate('/account/courses/edit/'+result.data.id);
             } else {
-               toast.error(result.message);
+               const errors = result.errors;
+                Object.keys(errors).forEach(field => {
+                    setError(field,{message: errors[field][0]})
+                 })
              }
         });
     }
@@ -153,7 +158,7 @@ const EditCourse = () => {
                                                         {
                                                             categories && categories.map((category) => {
                                                                 return(
-                                                                <option value={category.id}> {category.name}</option>
+                                                                <option key={category.id} value={category.id}> {category.name}</option>
                                                             )
                                                         })
                                                         }
@@ -177,7 +182,7 @@ const EditCourse = () => {
                                                         {
                                                             levels && levels.map((level) => {
                                                                 return(
-                                                                <option value={level.id}> {level.name}</option>
+                                                                <option key={level.id} value={level.id}> {level.name}</option>
                                                             )
                                                         })
                                                         }
@@ -200,7 +205,7 @@ const EditCourse = () => {
                                                         {
                                                             languages && languages.map((language) => {
                                                                 return(
-                                                                <option value={language.id}> {language.name}</option>
+                                                                <option key={language.id} value={language.id}> {language.name}</option>
                                                             )
                                                         })
                                                         }
@@ -230,16 +235,16 @@ const EditCourse = () => {
                                                     <label className='form-label' htmlFor="sell-price">Sell Price</label>
                                                     <input type="text"
                                                         {
-                                                            ...register('sell-price',{
+                                                            ...register('sell_price',{
                                                                 required:"The sell price field is required."
                                                             })
                                                         }
-                                                        className={`form-control ${errors['sell-price'] && "is-invalid"}`}
+                                                        className={`form-control ${errors['sell_price'] && "is-invalid"}`}
                                                         placeholder='Sell Price'
                                                         id='sell-price'
                                                     />
                                                     {
-                                                        errors['sell-price'] && <p className='invalid-feedback'>{errors['sell-price'].message}</p>
+                                                        errors['sell_price'] && <p className='invalid-feedback'>{errors['sell_price'].message}</p>
                                                     }
                                                 </div>
 
@@ -247,21 +252,25 @@ const EditCourse = () => {
                                                     <label className='form-label' htmlFor="cross-price">Cross Price</label>
                                                     <input type="text"
                                                         {
-                                                            ...register('cross-price',{
+                                                            ...register('cross_price',{
                                                                 required:"The cross price field is required."
                                                             })
                                                         }
-                                                        className={`form-control ${errors['cross-price'] && "is-invalid"}`}
+                                                        className={`form-control ${errors['cross_price'] && "is-invalid"}`}
                                                         placeholder='Cross Price'
                                                         id='cross-price'
                                                     />
                                                     {
-                                                        errors['cross-price'] && <p className='invalid-feedback'>{errors['cross-price'].message}</p>
+                                                        errors['cross_price'] && <p className='invalid-feedback'>{errors['cross_price'].message}</p>
                                                     }
                                                 </div>
 
 
-                                            <button className='btn btn-primary'>Update</button>
+                                            <button 
+                                                disabled={loading}
+                                                className='btn btn-primary'>
+                                                {loading == false ? 'Update' : 'Please wait...'}
+                                            </button>
                                         </div>
                                     </div>
 

@@ -46,6 +46,22 @@ class CourseController extends Controller
 
     }
 
+    public function show($id) {
+        $course = Course::find($id);
+
+        if($course === null) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Course not found.'
+            ],404);
+        }
+
+        return response()->json([
+                'status' => 200,
+                'data' => $course,
+            ],200);
+    }
+
     //This method will return  category,level,language
     public function metaData(){
         $categories = Category::all();

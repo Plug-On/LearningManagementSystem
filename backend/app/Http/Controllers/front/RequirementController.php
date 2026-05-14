@@ -5,7 +5,8 @@ namespace App\Http\Controllers\front;
 use App\Http\Controllers\Controller;
 use App\Models\Requirement;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator
+use Illuminate\Support\Facades\Validator;
+
 
 class RequirementController extends Controller
 {

@@ -65,7 +65,7 @@ const ManageOutcome = () => {
                 })
                 .then(res => res.json())
                 .then(result => {
-                    console.log(result);
+                    // console.log(result);
                     if (result.status == 200){
                         setOutcomes(result.data);
                     } else {
@@ -108,6 +108,7 @@ const ManageOutcome = () => {
 
   return (
     <>
+    <div className='card shadow-lg border-0'>
     <div className='card-body p-4'>
         <div className='d-flex'>
             <h4 className='h5 mb-3' >Outcome</h4>
@@ -171,7 +172,7 @@ const ManageOutcome = () => {
         outcomes={outcomes}
         setOutcomes={setOutcomes}
     />
-    
+    </div>
     </>
   )
 }

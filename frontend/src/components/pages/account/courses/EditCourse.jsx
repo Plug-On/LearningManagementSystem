@@ -7,11 +7,14 @@ import { apiUrl, token } from '../../../common/config'
 import toast from 'react-hot-toast'
 import ManageOutcome from './ManageOutcome'
 import ManageRequirement from './ManageRequirement'
+import EditCover from './EditCover'
 
 
 const EditCourse = () => {
     const params = useParams();
     const [loading, setLoading] = useState(false);
+    const [ course, setCourse] = useState([]);
+
     const { register, handleSubmit, formState: {errors}, reset, setError} = useForm({
         defaultValues: async () => {
             await fetch(`${apiUrl}/courses/${params.id}`, {
@@ -35,6 +38,8 @@ const EditCourse = () => {
                     'sell_price': result.data.price,
                     'cross_price': result.data.cross_price
                 })
+
+                setCourse(result.data);
             } else {
             //    toast.error(result.message);
             console.log("something went wrong");
@@ -282,6 +287,10 @@ const EditCourse = () => {
                             <div className='col-md-5'>
                                     <ManageOutcome/>
                                     <ManageRequirement/>
+                                    <EditCover
+                                        course={course}
+                                        setCourse={setCourse}
+                                    />
                             </div>
                             
                         </div>

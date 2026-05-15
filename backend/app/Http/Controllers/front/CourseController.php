@@ -9,6 +9,10 @@ use App\Models\Language;
 use App\Models\Level;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Alignment;
 
 
 class CourseController extends Controller
@@ -119,5 +123,62 @@ class CourseController extends Controller
                 'message' => 'Course has been updated successfully.'
             ],200);
 
+    }
+
+    public function  saveCourseImage($id, Request $request) {
+        $course = Course::find($id);
+
+        if($course == null) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Course not found.'
+            ],404);
+        }
+
+        $validator =Validator::make($request->all(), [
+            'image' => 'required|file|mimes:png,jpg,jpeg'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status' => 404,
+                'message' => $validator->errors()
+            ],404);
+        }
+
+        if($course->image != ""){
+            if(File::exists(public_path('uploads/course/'.$course->image))){
+                File::delete(public_path('uploads/course/'.$course->image));
+            }
+
+            if(File::exists(public_path('uploads/course/small/'.$course->image))){
+                File::delete(public_path('uploads/course/small/'.$course->image));
+            }
+
+        }
+
+        //to make unique image name
+        $image = $request->image;
+        $ext = $image->getClientOriginalExtension();
+        $imageName = strtotime('now').'-'.$id.'.'.$ext; //123123132-1.jpg
+        $image->move(public_path('uploads/course'),$imageName);
+
+
+        // create new image instance (800 x 600)
+        $manager = ImageManager::usingDriver(Driver::class);
+        $img = $manager->decode(public_path('uploads/course/'.$imageName));
+
+        // crop the best fitting 5:3 (600x360) ratio and resize to 600x360 pixel
+        $img->cover(750, 450);
+        $img->save(public_path('uploads/course/small/'.$imageName));
+
+        $course->image =$imageName;
+        $course->save();
+
+        return response() -> json ([
+            'status'  =>200,
+            'data' => $course,
+            'message' => 'Image uploaded successfully.'
+        ],200);
     }
 }

@@ -13,6 +13,6 @@ class Course extends Model
             return "";
         }
 
-        return asset('uploads/course/small/'.$this->image);
+        return asset ('uploads/course/small/'.$this->image);
     }
 }

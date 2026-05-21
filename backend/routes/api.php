@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\front\AccountController;
+use App\Http\Controllers\front\ChapterController;
 use App\Http\Controllers\front\CourseController;
 use App\Http\Controllers\front\OutcomeController;
 use App\Http\Controllers\front\RequirementController;
@@ -38,6 +39,13 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/sort-requirements',[RequirementController::class, 'sortRequirements']);
 
 
+
+    //Chapters Routes
+    Route::get('/chapters',[ChapterController::class, 'index']);
+    Route::post('/chapters',[ChapterController::class, 'store']);
+    Route::put('/chapters/{id}',[ChapterController::class, 'update']);
+    Route::delete('/chapters/{id}',[ChapterController::class, 'destroy']);
+    Route::post('/sort-chapters',[ChapterController::class, 'sortChapters']);
 
 });
 

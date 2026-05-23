@@ -213,7 +213,7 @@ const EditCourse = () => {
                                                         {
                                                             languages && languages.map((language) => {
                                                                 return(
-                                                                <option key={language.idgit } value={language.id}> {language.name}</option>
+                                                                <option key={language.id} value={language.id}> {language.name}</option>
                                                             )
                                                         })
                                                         }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\front\AccountController;
 use App\Http\Controllers\front\ChapterController;
 use App\Http\Controllers\front\CourseController;
+use App\Http\Controllers\front\LessonController;
 use App\Http\Controllers\front\OutcomeController;
 use App\Http\Controllers\front\RequirementController;
 use Illuminate\Http\Request;
@@ -47,5 +48,11 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::delete('/chapters/{id}',[ChapterController::class, 'destroy']);
     Route::post('/sort-chapters',[ChapterController::class, 'sortChapters']);
 
+
+
+    //Lessons Routes
+    Route::post('/lessons',[LessonController::class, 'store']);
+    Route::put('/lessons/{id}',[LessonController::class, 'update']);
+    Route::delete('/lessons/{id}',[LessonController::class, 'destroy']);
 });
 

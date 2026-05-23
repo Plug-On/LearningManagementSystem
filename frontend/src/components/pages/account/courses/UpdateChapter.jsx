@@ -6,14 +6,14 @@ import { apiUrl, token } from '../../../common/config';
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 
-const UpdateOutcome = ({outcomeData,showOutcome, handleClose, outcomes, setOutcomes}) => {
+const UpdateChapter = ({chapterData, showChapter, handleClose, setChapters}) => {
 
-    const [loading, setLoading] = useState(false);
+      const [loading, setLoading] = useState(false);
     const { register, handleSubmit, formState: {errors}, reset} = useForm();
 
      const onSubmit = async (data) => {
         setLoading(true)
-         await fetch(`${apiUrl}/outcomes/${outcomeData.id}`, {
+         await fetch(`${apiUrl}/chapters/${chapterData.id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -26,9 +26,7 @@ const UpdateOutcome = ({outcomeData,showOutcome, handleClose, outcomes, setOutco
                 .then(result => {
                     setLoading(false)
                     if (result.status == 200){
-                        const updatedOutcomes = outcomes.map(outcome => outcome.id==result.data.id 
-                            ? {...outcome, text:result.data.text}: outcome )
-                        setOutcomes(updatedOutcomes)
+                        setChapters({type: "UPDATE_CHAPTER", payload: result.data})
                         toast.success(result.message)
                         
                     } else {
@@ -38,38 +36,38 @@ const UpdateOutcome = ({outcomeData,showOutcome, handleClose, outcomes, setOutco
 
      }
 
-     useEffect(() => {
-        if(outcomeData) {
+     useEffect(()=> {
+        if (chapterData) {
             reset({
-                outcome: outcomeData.text
+                chapter: chapterData.title
             })
         }
-     },[outcomeData]);
+     },[chapterData])
 
   return (
     <>
-        <Modal size='lg' show={showOutcome} onHide={handleClose}>
+        <Modal size='lg' show={showChapter} onHide={handleClose}>
             <form onSubmit={handleSubmit(onSubmit)}>
                     <Modal.Header closeButton>
-                    <Modal.Title>Update Outcome</Modal.Title>
+                    <Modal.Title>Update Chapter</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <div className='mb-3'>
                             <label htmlFor="" className='form-label'> 
-                                Outcome
+                                Chapter
                             </label>
                             <input 
                                 {
-                                    ...register('outcome', {
-                                        required:'The outcome field is required.'
+                                    ...register('chapter', {
+                                        required:'The Chapter field is required.'
                                     })
                                 }
                                 type="text" 
-                                className={`form-control ${errors.outcome && 'is-invalid'} ` }
-                                placeholder='Outcome'
+                                className={`form-control ${errors.chapter && 'is-invalid'} ` }
+                                placeholder='Chapter'
                             />
                             {
-                            errors.outcome && <p className="invalid-feedback">{errors.outcome.message}</p>
+                            errors.chapter && <p className="invalid-feedback">{errors.chapter.message}</p>
                         }
                         </div>
                     </Modal.Body>
@@ -88,4 +86,4 @@ const UpdateOutcome = ({outcomeData,showOutcome, handleClose, outcomes, setOutco
   )
 }
 
-export default UpdateOutcome
+export default UpdateChapter

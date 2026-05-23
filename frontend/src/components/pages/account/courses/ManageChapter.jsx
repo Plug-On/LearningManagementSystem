@@ -1,17 +1,51 @@
-import React from 'react'
+import React, { useReducer } from 'react'
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form";
 import { useParams , Link } from "react-router-dom";
 import { apiUrl , token} from "../../../common/config";
 import toast from "react-hot-toast";
 import Accordion from 'react-bootstrap/Accordion';
+import UpdateChapter from './UpdateChapter';
 
 const ManageChapter = ({course,params}) => {
 
     const { register, handleSubmit, formState: {errors}, reset} = useForm();
     const [loading, setLoading] = useState(false);
+    const [chapterData, setChapterData] = useState([]);
 
-       const onSubmit = async (data) => {
+      const [showChapter, setShowChapter] = useState(false);
+        const handleClose = () => setShowChapter(false);
+        const handleShow = (chapter) => {
+            setShowChapter(true);
+            setChapterData(chapter)
+        }
+
+    const chapterReducer= (state, action) => {
+        
+        switch (action.type) {
+            case "SET_CHAPTER":
+                return action.payload;
+            case "ADD_CHAPTER":
+                return[...state, action.payload]
+            case "UPDATE_CHAPTER":
+                return state.map(chapter => {
+                    if (chapter.id === action.payload.id) {
+                        return action.payload;
+                    }
+                    return chapter;
+                })
+
+            case "DELETE_CHAPTER":
+                return state.filter(chapter => chapter.id != action.payload)
+        
+            default:
+                return state;
+        }
+    }
+
+    const [chapters, setChapters] = useReducer(chapterReducer, []);
+
+    const onSubmit = async (data) => {
         setLoading(true)
         const formData = {...data, course_id: params.id};
 
@@ -30,6 +64,7 @@ const ManageChapter = ({course,params}) => {
                     if (result.status == 200){
                         // const newOutcomes = [...outcomes,result.data]
                         // setOutcomes(newOutcomes)
+                        setChapters({type: "ADD_CHAPTER", payload: result.data})
                         toast.success(result.message)
                         reset()
                     } else {
@@ -39,6 +74,43 @@ const ManageChapter = ({course,params}) => {
                 });
 
         }
+
+    
+     const deleteChapter = async (id) => {
+
+        if (confirm( "Are you sure you want to delete ? ")) {
+                await fetch(`${apiUrl}/chapters/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept' : 'application/json',
+                            'Authorization' : `Bearer ${token}`
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.status == 200){
+                            setChapters({type: "DELETE_CHAPTER", payload:id})
+                            toast.success(result.message)
+                        } else {
+                        //    toast.error(result.message);
+                        console.log("something went wrong");
+                        }
+                    });
+
+            }
+
+        }
+
+         
+
+
+        useEffect(() => {
+
+            if (course.chapters) {
+                setChapters({type: "SET_CHAPTER", payload: course.chapters})
+            }
+        }, [course])
 
 
   return (
@@ -71,33 +143,36 @@ const ManageChapter = ({course,params}) => {
                 </form>
 
                  <Accordion >
-                    <Accordion.Item eventKey="0">
-                        <Accordion.Header>Accordion Item #1</Accordion.Header>
-                        <Accordion.Body>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                        aliquip ex ea commodo consequat. Duis aute irure dolor in
-                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                        culpa qui officia deserunt mollit anim id est laborum.
-                        </Accordion.Body>
-                    </Accordion.Item>
-                    <Accordion.Item eventKey="1">
-                        <Accordion.Header>Accordion Item #2</Accordion.Header>
-                        <Accordion.Body>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                        aliquip ex ea commodo consequat. Duis aute irure dolor in
-                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                        culpa qui officia deserunt mollit anim id est laborum.
-                        </Accordion.Body>
-                    </Accordion.Item>
+                    {
+                        chapters.map((chapter, index) => {
+                            return(
+
+                                    <Accordion.Item eventKey={index}>
+                                        <Accordion.Header>{chapter.title}</Accordion.Header>
+                                        <Accordion.Body>
+                                            <div className='d-flex'>
+                                                <button 
+                                                onClick={() => deleteChapter(chapter.id)}
+                                                className='btn btn-danger btn-sm'>Delete Chapter</button>
+                                                <button 
+                                                    onClick={()=> handleShow(chapter)}
+                                                className='btn btn-primary btn-sm ms-2'>Update Chapter</button>
+                                            </div>
+                                        </Accordion.Body>
+                                    </Accordion.Item>
+     
+                            )
+                        })
+                    }
     </Accordion>
             </div>
         </div>
+        <UpdateChapter
+            chapterData = {chapterData}
+            showChapter={showChapter}
+            handleClose={handleClose}
+            setChapters={setChapters}
+        />
     </>
   )
 }

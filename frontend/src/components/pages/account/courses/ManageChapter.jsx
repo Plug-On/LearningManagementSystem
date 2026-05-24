@@ -8,6 +8,8 @@ import Accordion from 'react-bootstrap/Accordion';
 import UpdateChapter from './UpdateChapter';
 import CreateLesson from './CreateLesson';
 import { FaPlus } from "react-icons/fa";
+import { HiMiniPencilSquare } from "react-icons/hi2";
+import { FaTrashAlt } from "react-icons/fa";
 
 const ManageChapter = ({course,params}) => {
 
@@ -165,14 +167,63 @@ const ManageChapter = ({course,params}) => {
                                     <Accordion.Item key={chapter.id} eventKey={index}>
                                         <Accordion.Header>{chapter.title}</Accordion.Header>
                                         <Accordion.Body>
-                                            <div className='d-flex'>
-                                                <button 
-                                                onClick={() => deleteChapter(chapter.id)}
-                                                className='btn btn-danger btn-sm'>Delete Chapter</button>
-                                                <button 
-                                                    onClick={()=> handleShow(chapter)}
-                                                className='btn btn-primary btn-sm ms-2'>Update Chapter</button>
+
+                                            <div className="row">
+                                                <div className="col-md-12">
+
+                                                    <div className='d-flex justify-content-between mb-2 mt-4'>
+                                                        <h4 className='h5'>Lessons</h4>
+                                                        <a className='h6' href="#" data-discover="true">
+                                                            <strong>Reorder Lesson</strong>
+                                                        </a>
+                                                    </div>
+
+                                                </div>
+                                                <div className="col-md-12">
+                                                    {
+                                                        chapter.lessons && chapter.lessons.map(lesson => {
+                                                            return (
+                                                            <div className='card shadow px-3 py-2 mb-2'>
+                                                                <div className="row">
+                                                                    <div className="col-md-7">
+                                                                        {lesson.title}
+                                                                    </div>
+
+                                                                    <div className="col-md-5 text-end">
+                                                                        {
+                                                                            lesson.duration > 0 && <small className="fw-bold text-muted me-2">20 mins</small>
+                                                                        }
+
+                                                                        {
+                                                                            lesson.is_free_preview == "yes" && <span className='badge bg-success'>Preview</span>
+                                                                        }
+                                                                        <Link to={`/account/courses/edit-lesson/${lesson.id}/${course.id}`} className="ms-2">
+                                                                            <HiMiniPencilSquare />
+                                                                        </Link>
+
+                                                                        <Link className="ms-2 text-danger">
+                                                                            <FaTrashAlt />
+                                                                        </Link>
+                                                                    </div>
+                                                                </div>
+
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }                                                  
+                                                </div>
+                                                <div className="col-md-12 mt-3">
+                                                    <div className='d-flex'>
+                                                        <button 
+                                                        onClick={() => deleteChapter(chapter.id)}
+                                                        className='btn btn-danger btn-sm'>Delete Chapter</button>
+                                                        <button 
+                                                            onClick={()=> handleShow(chapter)}
+                                                        className='btn btn-primary btn-sm ms-2'>Update Chapter</button>
+                                                    </div>
+                                                </div>
                                             </div>
+
                                         </Accordion.Body>
                                     </Accordion.Item>
      

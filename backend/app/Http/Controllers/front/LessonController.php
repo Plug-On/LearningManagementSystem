@@ -38,8 +38,24 @@ class LessonController extends Controller
 
     }
 
+    //This method will fetch a lesson
+    public function show($id){
+        $lesson = Lesson::find($id);
 
-     //This method will store/save a lesson
+        if($lesson == null){
+            return response()-> json([
+                'status' =>404,
+                'message' => 'Lesson not found'
+            ],404);
+        }
+
+        return response()-> json([
+            'status' =>200,
+            'data' => $lesson
+        ],200);
+    }
+
+     //This method will update a lesson
     public function update($id, Request $request){
 
         $lesson = Lesson::find($id);
@@ -66,7 +82,7 @@ class LessonController extends Controller
 
         $lesson->chapter_id = $request->chapter_id;
         $lesson->title = $request->lesson;
-        $lesson->is_free_preview = ($request->is_free_preview == false) ? 'no' : 'yes';
+        $lesson->is_free_preview = ($request->free_preview == false) ? 'no' : 'yes';
         $lesson->duration = $request->duration;
         $lesson->description = $request->description;
         $lesson->status = $request->status;

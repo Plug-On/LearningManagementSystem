@@ -116,4 +116,50 @@ class LessonController extends Controller
 
 
     }
+
+    //This method will upload lesson video
+    public function  saveVideo($id, Request $request) {
+        $lesson = Lesson::find($id);
+
+        if($lesson == null) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Lesson not found.'
+            ],404);
+        }
+
+        $validator =Validator::make($request->all(), [
+            'video' => 'required|file|mimes:mp4'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'status' => 404,
+                'message' => $validator->errors()
+            ],404);
+        }
+
+        if($lesson->video != ""){
+            if(File::exists(public_path('uploads/course/videos'.$lesson->video))){
+                File::delete(public_path('uploads/course/videos'.$lesson->video));
+            }
+
+        }
+
+        //to make unique image name
+        $video = $request->video;
+        $ext = $video->getClientOriginalExtension();
+        $videoName = strtotime('now').'-'.$id.'.'.$ext; //123123132-1.jpg
+        $video->move(public_path('uploads/course/videos'),$videoName);
+
+
+        $lesson->video =$videoName;
+        $lesson->save();
+
+        return response() -> json ([
+            'status'  =>200,
+            'data' => $lesson,
+            'message' => 'Video uploaded successfully.'
+        ],200);
+    }
 }

@@ -7,6 +7,7 @@ import { apiUrl, token } from '../../../common/config'
 // import React, { useState, useRef, useMemo } from 'react';
 import JoditEditor from 'jodit-react';
 import toast from 'react-hot-toast'
+import LessonVideo from './LessonVideo'
 
 
 const EditLesson = ({ placeholder }) => {
@@ -14,7 +15,7 @@ const EditLesson = ({ placeholder }) => {
     const { register, handleSubmit, formState: {errors}, reset, setError} = useForm();
     const [loading, setLoading] = useState(false);
     const [chapters, setChapters] = useState();
-    const [lesson, setLesson] = useState();
+    const [lesson, setLesson] = useState([]);
     const params = useParams();
 
     const editor = useRef(null);
@@ -114,6 +115,7 @@ const EditLesson = ({ placeholder }) => {
                     <div className='col-md-12 mt-5 mb-3'>
                         <div className='d-flex justify-content-between'>
                             <h2 className='h4 mb-0 pb-0'>Edit Lesson</h2>
+                            <Link className='btn btn-primary' to={`/account/courses/edit/${params.courseId}`}>Back</Link>
                         </div>
                     </div>
                     <div className='col-lg-3 account-sidebar'>
@@ -219,8 +221,16 @@ const EditLesson = ({ placeholder }) => {
                                     </div>
                                 </form>        
                             </div>
+                            <div className='col-md-4'>
+                                <LessonVideo
+                                    lesson ={lesson}
+                                />                           
+                            </div>
                         </div>
                     </div>
+                    
+
+                    
                 </div>
              </div>
         </section>

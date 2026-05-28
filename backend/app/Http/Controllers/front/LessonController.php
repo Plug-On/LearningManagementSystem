@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class LessonController extends Controller
 {
@@ -140,8 +141,8 @@ class LessonController extends Controller
         }
 
         if($lesson->video != ""){
-            if(File::exists(public_path('uploads/course/videos'.$lesson->video))){
-                File::delete(public_path('uploads/course/videos'.$lesson->video));
+            if(File::exists(public_path('uploads/course/videos/'.$lesson->video))){
+                File::delete(public_path('uploads/course/videos/'.$lesson->video));
             }
 
         }
@@ -153,7 +154,7 @@ class LessonController extends Controller
         $video->move(public_path('uploads/course/videos'),$videoName);
 
 
-        $lesson->video =$videoName;
+        $lesson->video = $videoName;
         $lesson->save();
 
         return response() -> json ([

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { apiUrl, token } from '../../../common/config'
 import toast from 'react-hot-toast'
 import { FilePond, registerPlugin } from 'react-filepond'
@@ -7,16 +7,24 @@ import FilePondPluginImageExifOrientation from 'filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
+import ReactPlayer from 'react-player'
 registerPlugin(FilePondPluginImageExifOrientation, FilePondPluginImagePreview,FilePondPluginFileValidateType)
 
 
-const LessonVideo = () => {
+const LessonVideo = ({lesson}) => {
 
     const [files, setFiles] = useState([]);
+    const [videoUrl, setVideoUrl] = useState();
 
+    useEffect(() =>{
+        if (lesson) {
+            setVideoUrl(lesson.video_url)
+        }
+    },[lesson]);
+console.log('videoUrl:', videoUrl);
   return (
     <>
-        <div className='card shadow-lg border-0 mt-4'>
+        <div className='card shadow-lg border-0'>
             <div className='card-body p-4'>
                 <div className='d-flex'>
                     <h4 className='h5 mb-3' >Lesson Video</h4>
@@ -31,7 +39,7 @@ const LessonVideo = () => {
                     maxFiles={1}
                     server={{
                         process: {
-                            url: `${apiUrl}/save-course-image/${course.id}`,
+                            url: `${apiUrl}/save-lesson-video/${lesson.id}`,
                             method: 'POST',
                             headers: {
                                 'Authorization': `Bearer ${token}` 
@@ -39,8 +47,7 @@ const LessonVideo = () => {
                             onload: (response) => {
                                 response = JSON.parse(response);
                                 toast.success(response.message);
-                                const updateCourseData = { ...course, course_small_image: response.data.course_small_image};
-                                setCourse(updateCourseData)
+                                setVideoUrl(response.data.video_url)
                                 setFiles([]);
                             },
                             onerror: (errors) => {
@@ -48,13 +55,23 @@ const LessonVideo = () => {
                             },
                         },
                     }}
-                    name="image"
+                    name="video"
                     labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
                 />
+
+
+                {
+                    videoUrl && <ReactPlayer
+                    width="100%"
+                    height="100%"
+                    controls
+                    src={videoUrl} />
+
+                }
+                
             </div>
             
         </div>
-    
     </>
   )
 }

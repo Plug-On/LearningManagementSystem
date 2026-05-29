@@ -10,12 +10,16 @@ import CreateLesson from './CreateLesson';
 import { FaPlus } from "react-icons/fa";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import { FaTrashAlt } from "react-icons/fa";
+import LessonsSort from './LessonsSort';
+import SortChapters from './SortChapters';
+import { RiDragMove2Fill } from "react-icons/ri";
 
 const ManageChapter = ({course,params}) => {
 
     const { register, handleSubmit, formState: {errors}, reset} = useForm();
     const [loading, setLoading] = useState(false);
     const [chapterData, setChapterData] = useState([]);
+    const [lessonsData, setLessonsData] = useState([]);
 
       //create chapter modal
         const [showChapter, setShowChapter] = useState(false);
@@ -30,6 +34,22 @@ const ManageChapter = ({course,params}) => {
         const handleCloseLessonModal = () => setShowLessonModal(false);
         const handleShowLessonModal = () => {
             setShowLessonModal(true);
+        }
+
+        // Sort lesson modal
+        const [showLessonSortModal, setShowLessonSortModal] = useState(false);
+        const handleCloseLessonSortModal = () => setShowLessonSortModal(false);
+        const handleShowLessonSortModal = (lessons) => {
+            setLessonsData(lessons);
+            setShowLessonSortModal(true);
+        }
+
+        // Sort Chapter modal
+        const [showChapterSortModal, setShowChapterSortModal] = useState(false);
+        const handleCloseChapterSortModal = () => setShowChapterSortModal(false);
+        const handleShowChapterSortModal = (lessons) => {
+            
+            setShowChapterSortModal(true);
         }
 
     const chapterReducer= (state, action) => {
@@ -157,7 +177,12 @@ const ManageChapter = ({course,params}) => {
 
                     <div className='d-flex justify-content-between w-100'>
                         <h4 className='h5 mb-3' >Chapters</h4>
-                        <Link onClick={() => handleShowLessonModal()}><FaPlus size={12}/><strong>Add Lesson</strong></Link>
+                        <div >
+                             <Link onClick={() => handleShowLessonModal()}><FaPlus size={12}/> <strong>Add Lesson</strong></Link>
+                            <Link className='ms-2' onClick={() => handleShowChapterSortModal()}><RiDragMove2Fill /><strong>Reorder Chapters</strong></Link>
+                        </div>
+                       
+
                     </div>
 
                 </div>
@@ -197,9 +222,9 @@ const ManageChapter = ({course,params}) => {
 
                                                     <div className='d-flex justify-content-between mb-2 mt-4'>
                                                         <h4 className='h5'>Lessons</h4>
-                                                        <a className='h6' href="#" data-discover="true">
+                                                        <Link className='h6' onClick={() => handleShowLessonSortModal(chapter.lessons)} data-discover="true">
                                                             <strong>Reorder Lesson</strong>
-                                                        </a>
+                                                        </Link>
                                                     </div>
 
                                                 </div>
@@ -268,6 +293,21 @@ const ManageChapter = ({course,params}) => {
             showLessonModal={showLessonModal}
             handleCloseLessonModal={handleCloseLessonModal}
             course={course}
+        />
+
+        <LessonsSort
+            showLessonSortModal ={showLessonSortModal}
+            handleCloseLessonSortModal={handleCloseLessonSortModal}
+            lessonsData={lessonsData}
+            setChapters={setChapters}
+        />
+
+
+        <SortChapters
+            showChapterSortModal={showChapterSortModal}
+            handleCloseChapterSortModal={handleCloseChapterSortModal}
+            course={course}
+            setChapters={setChapters}
         />
     </>
   )

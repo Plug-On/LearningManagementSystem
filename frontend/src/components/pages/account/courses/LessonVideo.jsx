@@ -21,7 +21,7 @@ const LessonVideo = ({lesson}) => {
             setVideoUrl(lesson.video_url)
         }
     },[lesson]);
-console.log('videoUrl:', videoUrl);
+
   return (
     <>
         <div className='card shadow-lg border-0'>

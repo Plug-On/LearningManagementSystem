@@ -179,7 +179,7 @@ const ManageChapter = ({course,params}) => {
                         <h4 className='h5 mb-3' >Chapters</h4>
                         <div >
                              <Link onClick={() => handleShowLessonModal()}><FaPlus size={12}/> <strong>Add Lesson</strong></Link>
-                            <Link className='ms-2' onClick={() => handleShowChapterSortModal()}><RiDragMove2Fill /><strong>Reorder Chapters</strong></Link>
+                            
                         </div>
                        
 
@@ -196,7 +196,7 @@ const ManageChapter = ({course,params}) => {
                             }
                             type="text" 
                             className={`form-control ${errors.chapter && 'is-invalid'} ` }
-                            placeholder='chapter' />
+                            placeholder='Add chapter' />
                             {
                                 errors.chapter && <p className="invalid-feedback">{errors.chapter.message}</p>
                             }
@@ -207,7 +207,9 @@ const ManageChapter = ({course,params}) => {
                         {loading == false ? 'Save' : 'Please wait...'}
                     </button>
                 </form>
-
+                            <div className='text-end mb-2'>
+                                <Link className='mb-5 mt-5' onClick={() => handleShowChapterSortModal()}><RiDragMove2Fill /><strong> Reorder Chapters</strong></Link> 
+                            </div>
                  <Accordion >
                     {
                         chapters.map((chapter, index) => {

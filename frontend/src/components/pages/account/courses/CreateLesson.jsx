@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 
 
-const CreateLesson = ({ showLessonModal, handleCloseLessonModal, course }) => {
+const CreateLesson = ({ showLessonModal, handleCloseLessonModal, course, chapters }) => {
 
     const [loading, setLoading] = useState(false);
     const { register, handleSubmit, formState: {errors}, reset} = useForm();
@@ -67,7 +67,7 @@ const CreateLesson = ({ showLessonModal, handleCloseLessonModal, course }) => {
                                  className={`form-select ${errors.chapter && 'is-invalid'} ` }>
                                 <option value="">Select a Chapter</option>
                                 {
-                                    course.chapters && course.chapters.map(chapter => {
+                                    chapters && chapters.map(chapter => {
                                         return (
                                             <option key={chapter.id} value={chapter.id}>{chapter.title}</option>
                                         )

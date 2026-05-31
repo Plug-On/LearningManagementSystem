@@ -158,6 +158,8 @@ const EditCourse = () => {
                                     course.status == 1 &&
                                      <Link onClick={() => changeStatus(course)} className='btn btn-primary'>Unpublish</Link> 
                                 }
+
+                                <Link to={`/account/my-courses`} className='btn btn-dark ms-2'>Back</Link> 
                                
                             </div>
                         </div>

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\Language;
+use App\Models\Lesson;
 use App\Models\Level;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -35,20 +37,21 @@ class CourseController extends Controller
             ],400);
         }
 
-    //This will store course in DB
-    $course = new Course();
-    $course->title = $request->title;
-    $course->status = 0;
-    $course->user_id = $request-> user()->id;
-    $course->save();
+        //This will store course in DB
+        $course = new Course();
+        $course->title = $request->title;
+        $course->status = 0;
+        $course->user_id = $request-> user()->id;
+        $course->save();
 
-    return response()->json([
-                'status' => 200,
-                'data' => $course,
-                'message' => 'Course has been created successfully.'
-            ],200);
+        return response()->json([
+                    'status' => 200,
+                    'data' => $course,
+                    'message' => 'Course has been created successfully.'
+                ],200);
 
-    }
+        }
+
 
     public function show($id) {
         $course = Course::with(['chapters','chapters.lessons'])->find($id);
@@ -107,24 +110,27 @@ class CourseController extends Controller
             ],400);
         }
 
-    //This will update course in DB
-    $course->title = $request->title;
-    $course->category_id = $request->category;
-    $course->level_id = $request->level;
-    $course->language_id = $request->language;
-    $course->price = $request->sell_price;
-    $course->cross_price = $request->cross_price;
-    $course->description = $request->description;
-    $course->save();
 
-    return response()->json([
-                'status' => 200,
-                'data' => $course,
-                'message' => 'Course has been updated successfully.'
-            ],200);
+
+        //This will update course in DB
+        $course->title = $request->title;
+        $course->category_id = $request->category;
+        $course->level_id = $request->level;
+        $course->language_id = $request->language;
+        $course->price = $request->sell_price;
+        $course->cross_price = $request->cross_price;
+        $course->description = $request->description;
+        $course->save();
+
+        return response()->json([
+                    'status' => 200,
+                    'data' => $course,
+                    'message' => 'Course has been updated successfully.'
+                ],200);
 
     }
 
+    //This method will upload course image
     public function  saveCourseImage($id, Request $request) {
         $course = Course::find($id);
 
@@ -182,6 +188,8 @@ class CourseController extends Controller
         ],200);
     }
 
+
+    //This method will publish/unpublish course
     public function changeStatus($id, Request $request){
         $course = Course::find($id);
 
@@ -202,5 +210,58 @@ class CourseController extends Controller
                 'course' => $course,
                 'message' => $message
             ],200);
+    }
+
+    //This method will delete course
+    public function destroy($id, Request $request) {
+        $course = Course::where('id', $id)
+                    ->where('user_id', $request->user()->id)
+                    ->first();
+
+        if($course == null) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Course not found.'
+            ],404);
+        }
+
+
+
+        $chapters = Chapter::where('course_id', $course->id)->get();
+
+        if(!empty($chapters)) {
+            foreach ($chapters as $chapter) {
+                $lessons = Lesson::where('chapter_id', $chapter->id)->get();
+                if(!empty($lessons)) {
+                    foreach($lessons as $lesson) {
+
+                         if($lesson->video != ""){
+                            if(File::exists(public_path('uploads/course/videos/'.$lesson->video))){
+                                File::delete(public_path('uploads/course/videos/'.$lesson->video));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        if($course->image != ""){
+            if(File::exists(public_path('uploads/course/small/'.$course->image))){
+                    File::delete(public_path('uploads/course/small/'.$course->image));
+                 }
+
+            if(File::exists(public_path('uploads/course/'.$course->image))){
+                    File::delete(public_path('uploads/course/'.$course->image));
+                 }
+            }
+
+            $course->delete();
+
+        return response()->json([
+                'status' => 200,
+                'message' => 'Course deleted successfully.'
+            ],200);
+
     }
 }

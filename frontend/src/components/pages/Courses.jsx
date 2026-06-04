@@ -1,8 +1,35 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Layout from '../common/Layout'
 import Course from '../common/Course'
+import { apiUrl } from '../common/config';
 
 const Courses = () => {
+
+    const[categories, setCategories] = useState([]);
+
+    const fetchCategories = () => {
+        fetch(`${apiUrl}/fetch-categories`,{
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(result =>{
+            // console.log(result);
+            if(result.status === 200){
+                setCategories(result.data);
+            }else{
+                console.log("Something went wrong");
+            }
+        })
+    }
+
+    useEffect(() => {
+        fetchCategories();
+    }, [])
+
   return (
     <div>
        <Layout>
@@ -20,47 +47,27 @@ const Courses = () => {
                                 <input type="text" className='form-control' placeholder='Search by keyword'/>
                                 <div className='pt-3'>
                                     <h3 className='h5 mb-2'>Category</h3>
-                                    <ul>
-                                        <li>
-                                            <div className="form-check">
-                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
-                                                <label className="form-check-label" htmlFor="flexCheckDefault">
-                                                    Web Development
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="form-check">
-                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault2"/>
-                                                <label className="form-check-label" htmlFor="flexCheckDefault2">
-                                                    Mobile Development
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="form-check">
-                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault3"/>
-                                                <label className="form-check-label" htmlFor="flexCheckDefault3">
-                                                    Digital Marketing
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="form-check">
-                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault4"/>
-                                                <label className="form-check-label" htmlFor="flexCheckDefault4">
-                                                Graphic Design
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div className="form-check">
-                                                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault5"/>
-                                                <label className="form-check-label" htmlFor="flexCheckDefault5">
-                                                Software Design
-                                                </label>
-                                            </div>
-                                        </li>
+                                        <ul>
+                                            {
+                                                categories && categories.map(category =>{
+                                                    return (
+                                                        <li key={category.id}>
+                                                            <div className="form-check">
+                                                                <input 
+                                                                    className="form-check-input" 
+                                                                    type="checkbox" 
+                                                                    value={category.id} 
+                                                                    id={`category-${category.id}`}/>
+                                                                <label className="form-check-label" htmlFor={`category-${category.id}`}>
+                                                                    {category.name}
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                    )
+                                                })
+                                            }
+
+                                        
                                     </ul>
                                 </div>
                                 <div className='mb-3'>
@@ -156,7 +163,7 @@ const Courses = () => {
                             </div> 
                             <div className="row gy-4">   
                                                             
-                                <Course 
+                                {/* <Course 
                                     title='The complete 2025 Web Development Bootcamp'
                                     level='Advance'
                                     enrolled='10'
@@ -191,7 +198,7 @@ const Courses = () => {
                                     level='Advance'
                                     enrolled='10'
                                     customClasses="col-lg-4 col-md-6"
-                                />
+                                /> */}
                             </div>
                         </section>
                     </div>

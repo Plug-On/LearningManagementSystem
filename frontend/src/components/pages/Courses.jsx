@@ -9,6 +9,8 @@ const Courses = () => {
     
     const[searchParams, setSearchParams] = useSearchParams();
     const[categories, setCategories] = useState([]);
+    const[keyword, setKeyword] = useState('');
+    const[sort, setSort] = useState('desc');
     const[levels, setLevels] = useState([]);
     const[languages, setLanguages] = useState([]);
     const[courses, setCourses] = useState([]);
@@ -17,6 +19,34 @@ const Courses = () => {
         const category = searchParams.get('category');
         return category ? category.split(',') : [];
     });
+
+    const[checkedLevel, setCheckedLevel] = useState(() => {
+        const level = searchParams.get('level');
+        return level ? level.split(',') : [];
+    });
+
+    const[languageChecked, setLanguageChecked] = useState(() => {
+        const language = searchParams.get('language');
+        return language ? language.split(',') : [];
+    });
+
+    const handleLanguageCheck = (e) => {
+        const {checked, value} = e.target;
+        if(checked){
+            setLanguageChecked(prev => [...prev, value]);
+        }else{
+            setLanguageChecked(languageChecked.filter(id => id !== value));
+        }
+    }
+
+    const handleLevelCheck = (e) => {
+        const {checked, value} = e.target;
+        if(checked){
+            setCheckedLevel(prev => [...prev, value]);
+        }else{
+            setCheckedLevel(checkedLevel.filter(id => id !== value));
+        }
+    }
 
     const handleCategoryCheck = (e) => {
         const {checked, value} = e.target;
@@ -36,9 +66,23 @@ const Courses = () => {
                 search.push(['category', categoryChecked]);
             }
 
+            if(checkedLevel.length > 0){
+                search.push(['level', checkedLevel]);
+            }
+
+            if(languageChecked.length > 0){
+                search.push(['language', languageChecked]);
+            }
+
+            if(keyword.length > 0){
+                search.push(['keyword', keyword]);
+            }
+
             if (search.length > 0) {
                 param = new URLSearchParams(search);
                 setSearchParams(param);
+            }else {
+                setSearchParams([]);
             }
 
         fetch(`${apiUrl}/fetch-courses?${param}`,{
@@ -126,7 +170,7 @@ const Courses = () => {
         fetchLanguages();
         fetchCourses();
         // console.log(categoryChecked);
-    }, [categoryChecked])
+    }, [categoryChecked, checkedLevel, languageChecked, keyword]);
 
   return (
     <div>
@@ -142,7 +186,15 @@ const Courses = () => {
                     <div className='col-lg-3'>
                         <div className='sidebar mb-5 card border-0'>
                             <div className='card-body shadow'>
-                                <input type="text" className='form-control' placeholder='Search by keyword'/>
+                                <div className='mb-3 input-group'>
+                                <input 
+                                value={keyword}
+                                onChange={(e) => setKeyword(e.target.value)}
+                                type="text" 
+                                className='form-control' 
+                                placeholder='Search by keyword'/>
+                                <button className='btn btn-primary'>Search</button>
+                                </div>
                                 <div className='pt-3'>
                                     <h3 className='h5 mb-2'>Category</h3>
                                         <ul>
@@ -178,7 +230,10 @@ const Courses = () => {
                                                 return (
                                                     <li key={level.id}>
                                                         <div className="form-check">
-                                                            <input className="form-check-input" 
+                                                            <input 
+                                                            defaultChecked={searchParams.get('level') ? searchParams.get('level').includes(level.id) : false}
+                                                            onClick={(e) => handleLevelCheck(e)}
+                                                            className="form-check-input" 
                                                             type="checkbox" 
                                                             value={level.id} 
                                                             id={`level-${level.id}`}/>
@@ -201,7 +256,10 @@ const Courses = () => {
                                                 return (
                                                     <li key={language.id}>
                                                         <div className="form-check">
-                                                            <input className="form-check-input" 
+                                                            <input 
+                                                            defaultChecked={searchParams.get('language') ? searchParams.get('language').includes(language.id) : false}
+                                                            onClick={(e) => handleLanguageCheck(e)}
+                                                            className="form-check-input" 
                                                             type="checkbox" 
                                                             value={language.id} 
                                                             id={`language-${language.id}`}/>
@@ -227,7 +285,8 @@ const Courses = () => {
                                     {/* 10 courses found */}
                                 </div>    
                                 <div>
-                                    <select name="" id="" className='form-select'>
+                                    <select 
+                                    className='form-select'>
                                         <option value="0">Newset First</option>
                                         <option value="1">Oldest First</option>
                                     </select>

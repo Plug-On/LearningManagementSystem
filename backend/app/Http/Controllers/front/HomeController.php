@@ -88,11 +88,11 @@ class HomeController extends Controller
 
 
         if(!empty($request->sort)){
-            $sortArr = ['ASC', 'DESC'];
+            $sortArr = ['asc', 'desc'];
             if(in_array($request->sort, $sortArr)){
-                $courses = $courses->orderBy('created', $request->sort);
+                $courses = $courses->orderBy('created_at', $request->sort);
             }else{
-                $courses = $courses->orderBy('created', 'DESC');
+                $courses = $courses->orderBy('created_at', 'DESC');
             }
         }
 

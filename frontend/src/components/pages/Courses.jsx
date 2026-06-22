@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react'
 import Layout from '../common/Layout'
 import Course from '../common/Course'
 import { apiUrl } from '../common/config';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
+import Loading from '../common/Loading';
+import NotFound from '../common/NotFound';
 // import { searchParams } from 'react-router-dom';
 
 const Courses = () => {
@@ -59,6 +61,7 @@ const Courses = () => {
     }
 
     const fetchCourses = () => {
+        setLoading(true)
         let search =[];
         let param = '';
 
@@ -78,6 +81,8 @@ const Courses = () => {
                 search.push(['keyword', keyword]);
             }
 
+            search.push(['sort', sort]);
+
             if (search.length > 0) {
                 param = new URLSearchParams(search);
                 setSearchParams(param);
@@ -95,8 +100,10 @@ const Courses = () => {
         .then(res => res.json())
         .then(result =>{
             // console.log(result);
+            setLoading(false)
             if(result.status === 200){
                 setCourses(result.data);
+                
             }else{
                 console.log("Something went wrong");
             }
@@ -164,13 +171,22 @@ const Courses = () => {
         })
     }
 
+      const clearFilters = () => {
+            setLevelChecked([])
+            setCategoryChecked([])
+            setLanguageChecked([])
+            setKeyword('')
+
+            document.querySelectorAll('.form-check-input').forEach(element => element.checked = false)
+        }
+
     useEffect(() => {
         fetchCategories();
         fetchLevels();
         fetchLanguages();
         fetchCourses();
         // console.log(categoryChecked);
-    }, [categoryChecked, checkedLevel, languageChecked, keyword]);
+    }, [categoryChecked, checkedLevel, languageChecked, keyword, sort]);
 
   return (
     <div>
@@ -274,7 +290,7 @@ const Courses = () => {
                                         }                                   
                                     </ul>
                                 </div>
-                                <a href="" className='clear-filter'>Clear All Filters</a>
+                                <Link onClick={()=> clearFilters()} className='clear-filter'>Clear All Filters</Link>
                             </div>
                         </div>
                     </div>
@@ -285,16 +301,29 @@ const Courses = () => {
                                     {/* 10 courses found */}
                                 </div>    
                                 <div>
-                                    <select 
-                                    className='form-select'>
-                                        <option value="0">Newset First</option>
-                                        <option value="1">Oldest First</option>
+                                    <select
+                                        value={sort} 
+                                        onChange={(e)=> setSort(e.target.value)}
+                                        className='form-select'>
+                                        <option value="desc">Newset First</option>
+                                        <option value="asc">Oldest First</option>
                                     </select>
                                 </div>
                             </div> 
                             <div className="row gy-4">   
+                                
                                 {
-                                    courses && courses.map(course =>{
+
+                                    loading == false && courses.length == 0 && <NotFound/>
+                                }
+
+                                {
+
+                                    loading == true && <Loading/>
+                                }
+
+                                {
+                                   loading==false && courses && courses.map(course =>{
                                         return (
                                             <Course 
                                                 key={course.id}

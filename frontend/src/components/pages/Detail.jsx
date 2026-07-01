@@ -1,11 +1,42 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
+import { apiUrl } from '../common/config'
 import Layout from '../common/Layout'
 import { Rating } from 'react-simple-star-rating'
 import ReactPlayer from 'react-player'
 import { Accordion, Badge, ListGroup, Card } from "react-bootstrap";
+import { useParams } from 'react-router-dom'
 
 const Detail = () => {
   const [rating, setRating] = useState(4.0)
+  const [course, setCourse] = useState(null)
+  const params = useParams();
+
+
+  const fetchCourse = () => {
+                  
+                  fetch(`${apiUrl}/fetch-course/${params.id}`, {
+                      method: 'GET',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'Accept' : 'application/json',
+                      }
+                  })
+                  .then(res => res.json())
+                  .then(result => {
+                      console.log(result)
+                      if(result.status == 200){
+                          setCourse(result.data)
+                      } else {
+                          console.log("Something went wrong");
+                      }
+                  });
+              }
+
+              useEffect(() => {
+                fetchCourse()
+              },[])
+
+
   return (
     <Layout>
        <div className='container pb-5 pt-3'>
@@ -18,7 +49,7 @@ const Detail = () => {
             </nav>
             <div className='row my-5'>
                 <div className='col-lg-8'>
-                    <h2>Web Development Bootcamp 2025</h2>
+                    <h2>hello</h2>
                     <div className='d-flex'>
                         <div className='mt-1'>
                             <span className="badge bg-green">Programming</span>

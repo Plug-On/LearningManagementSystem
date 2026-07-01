@@ -57,7 +57,7 @@ const Course = ({course,customClasses}) => {
                     }
                     
                     <div className="add-to-cart">
-                        <a href="/detail" className="btn btn-primary" >Read More</a>
+                        <a href={`/detail/${course.id}`} className="btn btn-primary" >Read More</a>
                     </div>
                 </div>
             </div>

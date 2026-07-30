@@ -4,16 +4,27 @@ import Layout from '../common/Layout'
 import { Rating } from 'react-simple-star-rating'
 import ReactPlayer from 'react-player'
 import { Accordion, Badge, ListGroup, Card } from "react-bootstrap";
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { LuMonitorPlay } from "react-icons/lu";
+import Loading from '../common/Loading'
+import FreePreview from '../common/FreePreview'
 
 const Detail = () => {
   const [rating, setRating] = useState(4.0)
+  const [loading, setLoading] = useState(true)
   const [course, setCourse] = useState(null)
+  const [freeLesson, setFreeLesson] = useState(null)
   const params = useParams();
 
+    const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = (lesson) => {
+        setShow(true);
+        setFreeLesson(lesson)
+    }
 
   const fetchCourse = () => {
-                  
+                  setLoading(true)
                   fetch(`${apiUrl}/fetch-course/${params.id}`, {
                       method: 'GET',
                       headers: {
@@ -23,7 +34,8 @@ const Detail = () => {
                   })
                   .then(res => res.json())
                   .then(result => {
-                      console.log(result)
+                      
+                      setLoading(false)
                       if(result.status == 200){
                           setCourse(result.data)
                       } else {
@@ -39,7 +51,19 @@ const Detail = () => {
 
   return (
     <Layout>
-        {course && 
+        {
+            freeLesson && <FreePreview
+                show={show}
+                handleClose={handleClose}
+                freeLesson={freeLesson}
+            />
+        }
+        {
+            loading == true && <div className='mt-5'>
+                <Loading/>
+                </div>
+        }
+        {loading == false && course && 
 
        <div className='container pb-5 pt-3'>
             <nav aria-label="breadcrumb">
@@ -126,27 +150,57 @@ const Detail = () => {
                         <div className='col-md-12 mt-4'>
                             <div className='border bg-white rounded-3 p-4'>
                                 <h3 className="h4 mb-3">Course Structure</h3>
+                                <p>
+                                    {course.chapters_count} Chapters .  {course.total_lessons} Lectures . {convertMinutesToHours(course.total_duration)}
+                                </p>
                                 <Accordion defaultActiveKey="0" id="courseAccordion">
                                     {
                                         course.chapters && course.chapters.map((chapter, index) => {
                                             return (
                                                 <Accordion.Item eventKey={index}>
-                                                        <Accordion.Header>
-                                                           {chapter.title} <span className="ms-3 text-muted">({chapter.lessons_count} lectures - {convertMinutesToHours(chapter.lessons_sum_duration)})</span>
+                                                        <Accordion.Header>{chapter.title} <span className="ms-3 text-muted">({chapter.lessons_count} lectures - {convertMinutesToHours(chapter.lessons_sum_duration)})</span>
                                                         </Accordion.Header>
                                                         <Accordion.Body>
                                                             <ListGroup>
-                                                                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                                                                What is Web Development?
-                                                                <Badge bg="primary">
-                                                                    <a href="#" className="text-white text-decoration-none">Preview</a>
-                                                                </Badge>
-                                                                <span className="text-muted">1 hour</span>
+
+                                                                {
+                                                                    chapter.lessons && chapter.lessons.map(lesson => {
+                                                                        return (
+                                                            <ListGroup.Item>
+                                                                <div className='row'>
+                                                                    <div className='col-md-9'>
+                                                                        <LuMonitorPlay className='me-2' />
+                                                                            {lesson.title}
+
+                                                                    </div>
+                                                                    <div className='col-md-3'>
+                                                                        <div className='d-flex justify-content-end'>
+
+                                                                            {
+                                                                                lesson.is_free_preview == 'yes' && 
+
+                                                                                <Badge bg="primary">
+                                                                                    <Link onClick={() => handleShow(lesson)}  className="text-white text-decoration-none">Preview</Link>
+                                                                                </Badge>
+                                                                            }
+                                                                            
+                                                                        <span className="text-muted ms-2">{convertMinutesToHours(lesson.duration)}</span>
+
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                </div>
+                                                                
+                                                                
                                                                 </ListGroup.Item>
-                                                                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                                                                Tools and Setup for Web Development
-                                                                <span className="text-muted">2 hours</span>
-                                                                </ListGroup.Item>
+                                                                        )
+                                                                    })
+                                                                }
+
+
+                                                               
+                                                                
                                                             </ListGroup>
                                                         </Accordion.Body>
                                                     </Accordion.Item>
@@ -192,9 +246,14 @@ const Detail = () => {
                 </div>
                 <div className='col-lg-4'>
                     <div className='border rounded-3 bg-white p-4 shadow-sm'>
-                        <Card.Body>
-                            <h3 className="fw-bold">$100</h3>
-                            <div className="text-muted text-decoration-line-through">$200</div>
+                        <Card.Img src={course.course_small_image}/>
+                        <Card.Body className='mt-3'>
+                            <h3 className="fw-bold">Rs. {course.price}</h3>
+                            {
+                                course.cross_price &&
+                                <div className="text-muted text-decoration-line-through">Rs.{course.cross_price}</div>
+                            }
+                            
                             {/* Buttons */}
                             <div className="mt-4">
                                 <button className="btn btn-primary w-100">

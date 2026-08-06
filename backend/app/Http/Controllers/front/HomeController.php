@@ -5,6 +5,7 @@ namespace App\Http\Controllers\front;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Language;
 use App\Models\Level;
 use Illuminate\Http\Request;
@@ -108,8 +109,7 @@ class HomeController extends Controller
 
 
     public function course($id) {
-
-    $course =Course::where('id', $id)
+        $course =Course::where('id', $id)
             ->withCount('chapters')
             ->with([
                 'category',
@@ -134,23 +134,58 @@ class HomeController extends Controller
             ])
             ->first();
 
-    if($course == null) {
-        return response()->json([
-            'status' => 404,
-            'message' => 'Course not found'
-        ],404);
+        if($course == null) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Course not found'
+            ],404);
+            }
+
+
+            $totalDuration = $course->chapters->sum('lessons_sum_duration');
+            $totalLessons = $course->chapters->sum('lessons_count');
+
+            $course->total_duration= $totalDuration;
+            $course->total_lessons= $totalLessons;
+
+            return response()->json([
+                'status' => 200,
+                'data' => $course
+            ],200);
     }
 
+    public function enroll (Request $request) {
 
-        $totalDuration = $course->chapters->sum('lessons_sum_duration');
-        $totalLessons = $course->chapters->sum('lessons_count');
+        $course = Course::find($request->course_id);
 
-        $course->total_duration= $totalDuration;
-        $course->total_lessons= $totalLessons;
+         if($course == null) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Course not found'
+            ],404);
+            }
+
+        $count = Enrollment::where(['user_id' => $request->user()->id,
+                            'course_id' => $request->course_id
+        ])->count();
+
+        if($count > 0 ) {
+            return response()->json([
+                'status' => 409,
+                'message' => 'You already enrolled'
+            ],409);
+
+        }
+
+        $enrollment = new Enrollment();
+        $enrollment->user_id = $request->user()->id;
+        $enrollment->course_id = $request->course_id;
+        $enrollment->save();
 
         return response()->json([
-            'status' => 200,
-            'data' => $course
-        ],200);
+                'status' => 200,
+                'message' => 'You have successfully enrolled'
+            ],200);
+
     }
 }

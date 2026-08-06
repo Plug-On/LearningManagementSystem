@@ -1,26 +1,28 @@
 import React, {useEffect, useState} from 'react'
-import { apiUrl, convertMinutesToHours } from '../common/config'
+import { apiUrl, convertMinutesToHours, token } from '../common/config'
 import Layout from '../common/Layout'
 import { Rating } from 'react-simple-star-rating'
 import ReactPlayer from 'react-player'
 import { Accordion, Badge, ListGroup, Card } from "react-bootstrap";
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { LuMonitorPlay } from "react-icons/lu";
 import Loading from '../common/Loading'
 import FreePreview from '../common/FreePreview'
+import toast from 'react-hot-toast'
 
 const Detail = () => {
-  const [rating, setRating] = useState(4.0)
-  const [loading, setLoading] = useState(true)
-  const [course, setCourse] = useState(null)
-  const [freeLesson, setFreeLesson] = useState(null)
-  const params = useParams();
+    const [rating, setRating] = useState(4.0)
+    const [loading, setLoading] = useState(true)
+    const [course, setCourse] = useState(null)
+    const [freeLesson, setFreeLesson] = useState(null)
+    const params = useParams();
+    const navigate = useNavigate();
 
     const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = (lesson) => {
-        setShow(true);
-        setFreeLesson(lesson)
+    const handleClose = () => setShow(false);
+    const handleShow = (lesson) => {
+            setShow(true);
+            setFreeLesson(lesson)
     }
 
   const fetchCourse = () => {
@@ -43,6 +45,43 @@ const Detail = () => {
                       }
                   });
               }
+
+const enrollCourse = async () => {
+                  
+        var data = {
+            course_id : course.id
+        }
+
+                 await fetch(`${apiUrl}/enroll-course`, {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'Accept' : 'application/json',
+                          'Authorization' : `Bearer ${token}`
+                      },
+                      body: JSON.stringify(data)
+                  })
+                  .then(async res => {
+                    const result = await res.json();
+                    return {
+                        status: res.status,
+                        data: result
+                    }
+                  })
+                  .then(({status,data}) => {
+
+                    if (status == 200) {
+                        toast.success(data.message)
+                    } else if (status == 401) {
+                        toast.error("Please login to enroll in this course")
+                        navigate('/account/login')
+                    } else {
+                        toast.error(data.message)
+                    }
+                    
+                  });
+              }
+
 
               useEffect(() => {
                 fetchCourse()
@@ -256,8 +295,8 @@ const Detail = () => {
                             
                             {/* Buttons */}
                             <div className="mt-4">
-                                <button className="btn btn-primary w-100">
-                                <i className="bi bi-ticket"></i> Buy Now
+                                <button onClick={() => enrollCourse()} className="btn btn-primary w-100">
+                                <i className="bi bi-ticket"></i> Enroll
                                 </button>
                             </div>
                         </Card.Body>

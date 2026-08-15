@@ -6,10 +6,12 @@ import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import { Link, useParams } from 'react-router-dom';
 import { apiUrl, token } from '../../common/config';
+import ReactPlayer from 'react-player'
 
 const WatchCourse = () => {
 
     const [course, setCourse] =useState();
+    const [activeLesson, setActiveLesson] = useState();
     const params = useParams()
 
     const fetchCourse = async (id) => {
@@ -27,12 +29,42 @@ const WatchCourse = () => {
                             
                             if (result.status == 200){                             
                             setCourse(result.data);
+                            setActiveLesson(result.activeLesson);
                             } else {
                             console.log("something went wrong");
                             }
                         });
                     
                 }
+
+
+    const showLesson = async (lesson) => {
+        setActiveLesson(lesson)
+        
+        const data = {
+            lesson_id : lesson.id,
+            chapter_id : lesson.chapter_id,
+            course_id : params.id
+        }
+
+        await fetch(`${apiUrl}/save-activity`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept' : 'application/json',
+                                'Authorization' : `Bearer ${token}`
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(res => res.json())
+                        .then(result => {
+                            if (result.status == 200){                             
+                            
+                            } else {
+                            console.log("something went wrong");
+                            }
+                        });
+    }
     
                 useEffect(()=> {
                    fetchCourse()
@@ -47,25 +79,37 @@ const WatchCourse = () => {
                 <div className='container'>
                 <div className='row'>
                     <div className='col-md-8'>
-                        <div className='video'>
-                            <video width="100%" height="500" controls>
-                                <source src="movie.mp4" type="video/mp4"/>
-                                <source src="movie.ogg" type="video/ogg"/>
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                        <div className='meta-content'>
-                            <div className='d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 pt-1'>
-                                <h3 className='pt-2'>Introduction</h3>
-                                <div>
-                                    <a href="" className='btn btn-primary px-3'>
-                                        Mark as complete <IoMdCheckmarkCircleOutline size={20} /> </a>
+                        {
+                            activeLesson && activeLesson &&
+                        <>
+                            <div className='video'>
+                                <ReactPlayer
+                                        width="100%"
+                                        height="450px"
+                                        controls
+                                        config = {{
+                                            file: {
+                                                attributes: {
+                                                    controlsList: 'nodownload'
+                                                }
+                                            }
+                                        }}
+                                        url={activeLesson.video_url}
+                                />
+                            </div>
+                            <div className='meta-content'>
+                                <div className='d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 pt-1'>
+                                    <h3 className='pt-2'>{activeLesson.title}</h3>
+                                    <div>
+                                        <a href="" className='btn btn-primary px-3'>
+                                            Mark as complete <IoMdCheckmarkCircleOutline size={20} /> </a>
+                                    </div>
+                                </div>
+                                <div dangerouslySetInnerHTML={{__html: activeLesson.description}}>
                                 </div>
                             </div>
-                            <div>
-                                <p>In this chapter we will learn about html basics</p>                               
-                            </div>
-                        </div>
+                        </>
+                        }
                     </div>
                     <div className='col-md-4'>
                         <div className='card rounded-0'>
@@ -83,7 +127,7 @@ const WatchCourse = () => {
                                     {
                                         course && course.chapters.map(chapter => {
                                             return (
-                                                <Accordion.Item eventKey={chapter.id}>
+                                                <Accordion.Item eventKey={chapter.id} >
                                                     <Accordion.Header>{chapter.title}</Accordion.Header>
                                                     <Accordion.Body className='pt-2 pb-0 ps-0'>
                                                         <ul className='lessons mb-0'>
@@ -91,7 +135,7 @@ const WatchCourse = () => {
                                                                 chapter.lessons && chapter.lessons.map(lesson=> {
                                                                     return (
                                                                         <li className='pb-2'>
-                                                                            <Link href="">
+                                                                            <Link onClick={()=> showLesson(lesson)}>
                                                                                 <MdSlowMotionVideo size={20} /> {lesson.title}
                                                                             </Link>
                                                                         </li>

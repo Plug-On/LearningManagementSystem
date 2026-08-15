@@ -12,10 +12,17 @@ const FreePreview = ({show, handleClose, freeLesson}) => {
         </Modal.Header>
         <Modal.Body>
             <ReactPlayer
-                src={freeLesson.video_url}
                 width="100%"
                 height="450px"
                 controls
+                config = {{
+                    file: {
+                        attributes: {
+                            controlsList: 'nodownload'
+                        }
+                    }
+                }}
+                url={freeLesson.video_url}
                 />
         </Modal.Body>
         <Modal.Footer>

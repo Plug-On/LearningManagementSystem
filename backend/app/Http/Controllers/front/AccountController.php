@@ -145,6 +145,8 @@ class AccountController extends Controller
             ])
             ->first();
 
+            $activeLesson = collect();
+
             //if no activity saved then show first lesson of first chapter
 
             $activityCount = Activity::where([
@@ -172,13 +174,48 @@ class AccountController extends Controller
                 $activity->lesson_id = $lesson->id;
                 $activity->is_last_watched= "yes";
                 $activity->save();
+
+                $activeLesson = $lesson;
+            } else {
+                $activity = Activity::where([
+                'user_id' => $request->user()->id,
+                'course_id' =>$id
+                 ])->first();
+
+                $activeLesson = Lesson::where('id', $activity->lesson_id)
+                            ->first();
             }
 
             return response()->json([
                 'status' => 200,
-                'data' => $course
+                'data' => $course,
+                'activeLesson' => $activeLesson
             ],200);
 
     }
 
+    public function saveUserActivity(Request $request) {
+        Activity::where([
+            'user_id' => $request->user()->id,
+            'course_id' =>$request->course_id
+        ])->update([
+            'is_last_watched' => "no"]);
+
+        Activity::updateOrInsert(
+            [
+                'user_id' => $request->user()->id,
+                'course_id' =>$request->course_id,
+                'chapter_id' =>$request->chapter_id,
+                'lesson_id' =>$request->lesson_id
+            ],
+            [
+                'is_last_watched' => "yes"
+            ]
+        );
+
+        return response()->json([
+                'status' => 200,
+                'message' => "User activity saved successfully"
+            ],200);
+    }
 }

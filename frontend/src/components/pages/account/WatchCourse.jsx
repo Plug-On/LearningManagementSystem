@@ -1,14 +1,49 @@
-import React from 'react'
+import React, { useEffect,useState } from 'react'
 import Layout from '../../common/Layout'
 import Accordion from 'react-bootstrap/Accordion';
 import { MdSlowMotionVideo } from "react-icons/md";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import { Link, useParams } from 'react-router-dom';
+import { apiUrl, token } from '../../common/config';
 
 const WatchCourse = () => {
+
+    const [course, setCourse] =useState();
+    const params = useParams()
+
+    const fetchCourse = async (id) => {
+                    
+                            await fetch(`${apiUrl}/enroll/${params.id}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept' : 'application/json',
+                                'Authorization' : `Bearer ${token}`
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(result => {
+                            
+                            if (result.status == 200){                             
+                            setCourse(result.data);
+                            } else {
+                            console.log("something went wrong");
+                            }
+                        });
+                    
+                }
+    
+                useEffect(()=> {
+                   fetchCourse()
+                },[])
+
+
   return (
     <Layout>
-         <section className='section-5 my-5'>
+        {
+            course && 
+             <section className='section-5 my-5'>
                 <div className='container'>
                 <div className='row'>
                     <div className='col-md-8'>
@@ -36,59 +71,43 @@ const WatchCourse = () => {
                         <div className='card rounded-0'>
                             <div className='card-body'>
                                 <div className='h6'>
-                                    <strong>Web Development Crash Course</strong>
+                                    <strong>{course.title}</strong>
                                 </div>  
                                 <div className='py-2'>
-                                    <ProgressBar now={50} />
+                                    <ProgressBar now={0} />
                                     <div className='pt-2'>
-                                        50% complete
+                                        0% complete
                                     </div>
                                 </div>
-                                <Accordion defaultActiveKey="0" flush>
-                                    <Accordion.Item eventKey="0">
-                                        <Accordion.Header>Web Development basics</Accordion.Header>
-                                        <Accordion.Body className='pt-2 pb-0 ps-0'>
-                                            <ul className='lessons mb-0'>
-                                                <li className='pb-2'>
-                                                    <a href="">
-                                                        <MdSlowMotionVideo size={20} /> Introduction
-                                                    </a>
-                                                </li>
-                                                <li  className='pb-2'>
-                                                    <a href="">
-                                                        <MdSlowMotionVideo size={20} /> What is HTML
-                                                    </a>
-                                                </li>
-                                                <li  className='pb-2'>
-                                                    <a href="">
-                                                        <MdSlowMotionVideo size={20} /> HTML Elements
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </Accordion.Body>
-                                    </Accordion.Item>
-                                    <Accordion.Item eventKey="1">
-                                        <Accordion.Header>HTML</Accordion.Header>
-                                        <Accordion.Body className='pt-2 pb-0 ps-0'>
-                                            <ul className='lessons mb-0'>
-                                                <li className='pb-2'>
-                                                    <a href="">
-                                                        <MdSlowMotionVideo size={20} /> Introduction
-                                                    </a>
-                                                </li>
-                                                <li  className='pb-2'>
-                                                    <a href="">
-                                                        <MdSlowMotionVideo size={20} /> What is HTML
-                                                    </a>
-                                                </li>
-                                                <li  className='pb-2'>
-                                                    <a href="">
-                                                        <MdSlowMotionVideo size={20} /> HTML Elements
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </Accordion.Body>
-                                    </Accordion.Item>
+                                <Accordion  flush>
+                                    {
+                                        course && course.chapters.map(chapter => {
+                                            return (
+                                                <Accordion.Item eventKey={chapter.id}>
+                                                    <Accordion.Header>{chapter.title}</Accordion.Header>
+                                                    <Accordion.Body className='pt-2 pb-0 ps-0'>
+                                                        <ul className='lessons mb-0'>
+                                                            {
+                                                                chapter.lessons && chapter.lessons.map(lesson=> {
+                                                                    return (
+                                                                        <li className='pb-2'>
+                                                                            <Link href="">
+                                                                                <MdSlowMotionVideo size={20} /> {lesson.title}
+                                                                            </Link>
+                                                                        </li>
+                                                                    )
+                                                                })
+                                                            }
+                                                            
+                                                           
+                                                        </ul>
+                                                    </Accordion.Body>
+                                                </Accordion.Item>
+                                            )
+                                        })
+                                    }
+                                    
+
                                 </Accordion>                            
                             </div>
                         </div>
@@ -96,6 +115,8 @@ const WatchCourse = () => {
                 </div>
                 </div>
             </section>
+        }
+        
 
     </Layout>
   )

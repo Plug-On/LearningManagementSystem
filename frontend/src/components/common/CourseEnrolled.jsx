@@ -53,7 +53,7 @@ const CourseEnrolled = ({enrollment}) => {
             <div className="card-footer bg-white">
                 <div className="d-flex py-2 justify-content-between align-items-center">
                     <div className="add-to-cart">
-                        <a href="/detail" className="btn btn-primary" >Watch Now</a>
+                        <a href={`/account/watch-course/${enrollment.course.id}`} className="btn btn-primary" >Watch Now</a>
                     </div>
                 </div>
             </div>

@@ -178,18 +178,29 @@ class AccountController extends Controller
                 $activeLesson = $lesson;
             } else {
                 $activity = Activity::where([
-                'user_id' => $request->user()->id,
-                'course_id' =>$id
+                        'user_id' => $request->user()->id,
+                        'course_id' =>$id,
+                        'is_last_watched' => "yes"
                  ])->first();
 
                 $activeLesson = Lesson::where('id', $activity->lesson_id)
                             ->first();
             }
 
+            //fetch which lesson are completed
+            $completedLessons = Activity::where([
+                'user_id' => $request->user()->id,
+                'course_id' =>$id,
+                'is_completed' => "yes"
+            ])
+            ->pluck('lesson_id')
+            ->toArray();
+
             return response()->json([
                 'status' => 200,
                 'data' => $course,
-                'activeLesson' => $activeLesson
+                'activeLesson' => $activeLesson,
+                'completedLessons' => $completedLessons
             ],200);
 
     }
@@ -217,5 +228,23 @@ class AccountController extends Controller
                 'status' => 200,
                 'message' => "User activity saved successfully"
             ],200);
+    }
+
+    public function markAsComplete(Request $request){
+
+     Activity::where([
+                'user_id' => $request->user()->id,
+                'course_id' =>$request->course_id,
+                'chapter_id' =>$request->chapter_id,
+                'lesson_id' =>$request->lesson_id,
+            ])->update([
+                'is_completed' => "yes"
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'message' => "Lesson marked as complete"
+            ],200);
+
     }
 }

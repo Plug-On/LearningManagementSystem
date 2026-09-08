@@ -7,11 +7,12 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import { Link, useParams } from 'react-router-dom';
 import { apiUrl, token } from '../../common/config';
 import ReactPlayer from 'react-player'
-
+import { toast } from 'react-hot-toast';
 const WatchCourse = () => {
 
     const [course, setCourse] =useState();
     const [activeLesson, setActiveLesson] = useState();
+    const [completedLessons, setCompletedLessons] = useState([]);
     const params = useParams()
 
     const fetchCourse = async (id) => {
@@ -30,6 +31,7 @@ const WatchCourse = () => {
                             if (result.status == 200){                             
                             setCourse(result.data);
                             setActiveLesson(result.activeLesson);
+                            setCompletedLessons(result.completedLessons);
                             } else {
                             console.log("something went wrong");
                             }
@@ -64,7 +66,36 @@ const WatchCourse = () => {
                             console.log("something went wrong");
                             }
                         });
-    }
+                }
+
+
+        const markAsComplete = async (activeLesson) => {
+            const data = {
+                    lesson_id : activeLesson.id,
+                    chapter_id : activeLesson.chapter_id,
+                    course_id : params.id
+                }
+
+        await fetch(`${apiUrl}/mark-as-complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept' : 'application/json',
+                        'Authorization' : `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.status == 200){                             
+                    toast.success(result.message);
+                    } else {
+                    console.log("something went wrong");
+                    }
+                });
+        }
+
+
     
                 useEffect(()=> {
                    fetchCourse()
@@ -101,8 +132,8 @@ const WatchCourse = () => {
                                 <div className='d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 pt-1'>
                                     <h3 className='pt-2'>{activeLesson.title}</h3>
                                     <div>
-                                        <a href="" className='btn btn-primary px-3'>
-                                            Mark as complete <IoMdCheckmarkCircleOutline size={20} /> </a>
+                                        <Link onClick={() => markAsComplete(activeLesson)} className={`${completedLessons.includes(activeLesson.id) ? 'disabled' : ''} btn btn-primary px-3`}>
+                                            Mark as complete <IoMdCheckmarkCircleOutline size={20} /> </Link>
                                     </div>
                                 </div>
                                 <div dangerouslySetInnerHTML={{__html: activeLesson.description}}>

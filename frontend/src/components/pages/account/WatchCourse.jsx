@@ -13,6 +13,7 @@ const WatchCourse = () => {
     const [course, setCourse] =useState();
     const [activeLesson, setActiveLesson] = useState();
     const [completedLessons, setCompletedLessons] = useState([]);
+    const [progress, setProgress] = useState(0);
     const params = useParams()
 
     const fetchCourse = async (id) => {
@@ -32,6 +33,7 @@ const WatchCourse = () => {
                             setCourse(result.data);
                             setActiveLesson(result.activeLesson);
                             setCompletedLessons(result.completedLessons);
+                            setProgress(result.progress);
                             } else {
                             console.log("something went wrong");
                             }
@@ -89,6 +91,8 @@ const WatchCourse = () => {
                 .then(result => {
                     if (result.status == 200){                             
                     toast.success(result.message);
+                    setCompletedLessons(result.completedLessons);
+                    setProgress(result.progress);
                     } else {
                     console.log("something went wrong");
                     }
@@ -132,7 +136,7 @@ const WatchCourse = () => {
                                 <div className='d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 pt-1'>
                                     <h3 className='pt-2'>{activeLesson.title}</h3>
                                     <div>
-                                        <Link onClick={() => markAsComplete(activeLesson)} className={`${completedLessons.includes(activeLesson.id) ? 'disabled' : ''} btn btn-primary px-3`}>
+                                        <Link onClick={() => markAsComplete(activeLesson)} className={`${completedLessons &&completedLessons.includes(activeLesson.id) ? 'disabled' : ''} btn btn-primary px-3`}>
                                             Mark as complete <IoMdCheckmarkCircleOutline size={20} /> </Link>
                                     </div>
                                 </div>
@@ -149,9 +153,9 @@ const WatchCourse = () => {
                                     <strong>{course.title}</strong>
                                 </div>  
                                 <div className='py-2'>
-                                    <ProgressBar now={0} />
+                                    <ProgressBar now={progress} />
                                     <div className='pt-2'>
-                                        0% complete
+                                        {progress}% complete
                                     </div>
                                 </div>
                                 <Accordion  flush>
@@ -166,7 +170,7 @@ const WatchCourse = () => {
                                                                 chapter.lessons && chapter.lessons.map(lesson=> {
                                                                     return (
                                                                         <li className='pb-2'>
-                                                                            <Link onClick={()=> showLesson(lesson)}>
+                                                                            <Link className={`${completedLessons && completedLessons.includes(lesson.id) ? 'text-success' : ''}`} onClick={()=> showLesson(lesson)}>
                                                                                 <MdSlowMotionVideo size={20} /> {lesson.title}
                                                                             </Link>
                                                                         </li>

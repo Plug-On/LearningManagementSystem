@@ -42,4 +42,12 @@ class Course extends Model
     public function language () {
         return $this->belongsTo(Language::class);
     }
+
+    public function reviews () {
+         return $this->hasMany(Review::class);
+    }
+
+    public function enrollments () {
+         return $this->hasMany(Enrollment::class);
+    }
 }

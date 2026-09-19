@@ -8,6 +8,7 @@ use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -84,8 +85,16 @@ class AccountController extends Controller
 
     public function courses(Request $request) {
         $courses = Course:: where('user_id', $request->user()->id)
+                    ->withCount('reviews')
+                    ->withCount('enrollments')
+                    ->withSum('reviews', 'rating')
                     ->with('level')
                     ->get();
+
+        $courses->map(function($course) {
+            $course->rating =  $course->reviews_count > 0 ?
+                number_format(($course->reviews_sum_rating/ $course->reviews_count),1) : "0.0";
+        });
 
         return response()->json([
                 'status' => 200,
@@ -97,8 +106,17 @@ class AccountController extends Controller
 
     public function enrollments (Request $request) {
         $enrollments = Enrollment::where('user_id', $request->user()->id)
-                                        ->with('course', 'course.level')
+                                        ->with(['course' => function($query) {
+                                            $query ->withCount('reviews');
+                                            $query->withSum('reviews', 'rating');
+                                            $query->withCount('enrollments');
+                                        }, 'course.level'])
                                         ->get();
+
+        $enrollments->map(function($enrollments) {
+            $enrollments->course->rating =  $enrollments->course->reviews_count > 0 ?
+                number_format(($enrollments->course->reviews_sum_rating/ $enrollments->course->reviews_count),1) : "0.0";
+        });
 
         return response()->json([
                 'status' => 200,
@@ -310,5 +328,42 @@ class AccountController extends Controller
                 'message' => "Lesson marked as complete"
             ],200);
 
+    }
+
+
+
+    public function saveRating(Request $request) {
+
+        $course = Course::find($request->course_id);
+
+        if ($course == null) {
+            return response()-> json([
+                'status' => 404,
+                "message" => "Course not found"
+            ],404);
+        }
+
+        $count = Review::where('course_id', $request->course_id)
+                            ->where('user_id',$request->user()->id)->count();
+
+        if ($count > 0) {
+            return response()-> json([
+                'status' => 200,
+                "message" => "You already rated this course."
+            ],200);
+        }
+
+        $review = new Review();
+        $review->comment = $request ->comment;
+        $review->rating = $request ->rating;
+        $review->user_id = $request->user()->id;
+        $review->course_id = $request->course_id;
+        $review->status = 1;
+        $review->save();
+
+        return response()-> json([
+                'status' => 200,
+                "message" => "Thanks for your feedback."
+            ],200);
     }
 }

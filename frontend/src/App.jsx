@@ -16,6 +16,7 @@ import CreateCourse from './components/pages/account/courses/CreateCourse';
 import EditCourse from './components/pages/account/courses/EditCourse';
 import EditLesson from './components/pages/account/courses/EditLesson';
 import LeaveRating from './components/pages/account/courses/LeaveRating';
+import Profile from './components/pages/account/Profile';
 
 
 
@@ -36,12 +37,25 @@ function App() {
           <Route path='/account/register' element={<Register/>} />
           <Route path='/account/my-courses' element={<MyCourses/>} />
          
-          <Route path='/account/change-password' element={<ChangePassword/>} />
+          <Route 
+              path='/account/change-password' 
+              element={
+              <RequireAuth>
+                <ChangePassword/>
+              </RequireAuth>
+            } 
+          />
 
            <Route path='/account/watch-course/:id'           
            element={
             <RequireAuth>
             <WatchCourse/>
+        </RequireAuth>} />
+
+        <Route path='/account/profile'           
+           element={
+            <RequireAuth>
+            <Profile/>
         </RequireAuth>} />
 
         <Route path='/account/leave-rating/:id'           

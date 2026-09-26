@@ -115,22 +115,19 @@ const WatchCourse = () => {
                 <div className='row'>
                     <div className='col-md-8'>
                         {
-                            activeLesson && activeLesson &&
+                            activeLesson && 
                         <>
                             <div className='video'>
+                                {/* {console.log("Active Lesson:", activeLesson)}
+                                {console.log("Video URL:", activeLesson.video_url)} */}
+
                                 <ReactPlayer
-                                        width="100%"
-                                        height="450px"
-                                        controls
-                                        config = {{
-                                            file: {
-                                                attributes: {
-                                                    controlsList: 'nodownload'
-                                                }
-                                            }
-                                        }}
-                                        url={activeLesson.video_url}
+                                    src={activeLesson.video_url}
+                                    width="100%"
+                                    height="450px"
+                                    controls
                                 />
+
                             </div>
                             <div className='meta-content'>
                                 <div className='d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 pt-1'>
@@ -162,14 +159,14 @@ const WatchCourse = () => {
                                     {
                                         course && course.chapters.map(chapter => {
                                             return (
-                                                <Accordion.Item eventKey={chapter.id} >
+                                                <Accordion.Item key={chapter.id} eventKey={chapter.id}>
                                                     <Accordion.Header>{chapter.title}</Accordion.Header>
                                                     <Accordion.Body className='pt-2 pb-0 ps-0'>
                                                         <ul className='lessons mb-0'>
                                                             {
                                                                 chapter.lessons && chapter.lessons.map(lesson=> {
                                                                     return (
-                                                                        <li className='pb-2'>
+                                                                        <li key={lesson.id} className='pb-2'>
                                                                             <Link className={`${completedLessons && completedLessons.includes(lesson.id) ? 'text-success' : ''}`} onClick={()=> showLesson(lesson)}>
                                                                                 <MdSlowMotionVideo size={20} /> {lesson.title}
                                                                             </Link>

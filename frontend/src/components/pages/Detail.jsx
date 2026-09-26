@@ -46,7 +46,7 @@ const Detail = () => {
                   });
               }
 
-const enrollCourse = async () => {
+    const enrollCourse = async () => {
                   
         var data = {
             course_id : course.id
@@ -81,6 +81,82 @@ const enrollCourse = async () => {
                     
                   });
               }
+
+    const initiatePayment = async () => {
+
+            try {
+
+                const response = await fetch(`${apiUrl}/initiate-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        course_id: course.id
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.status === 401) {
+                    toast.error("Please login to enroll in this course");
+                    navigate('/account/login');
+                    return;
+                }
+
+                if (response.status !== 200) {
+                    toast.error(result.message || "Something went wrong");
+                    return;
+                }
+
+                const payment = result.data;
+
+                // Create form
+                const form = document.createElement('form');
+
+                form.method = 'POST';
+                form.action = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
+
+                const fields = {
+                    amount: payment.amount,
+                    tax_amount: payment.tax_amount,
+                    total_amount: payment.total_amount,
+                    transaction_uuid: payment.transaction_uuid,
+                    product_code: payment.product_code,
+                    product_service_charge: payment.product_service_charge,
+                    product_delivery_charge: payment.product_delivery_charge,
+                    success_url: payment.success_url,
+                    failure_url: payment.failure_url,
+                    signed_field_names: payment.signed_field_names,
+                    signature: payment.signature
+                };
+
+                Object.keys(fields).forEach((key) => {
+
+                    const input = document.createElement('input');
+
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = fields[key];
+
+                    form.appendChild(input);
+
+                });
+
+                document.body.appendChild(form);
+
+                form.submit();
+
+            } catch (error) {
+
+                console.log(error);
+
+                toast.error("Unable to start payment");
+
+            }
+        };
 
 
               useEffect(() => {
@@ -292,8 +368,11 @@ const enrollCourse = async () => {
                             
                             {/* Buttons */}
                             <div className="mt-4">
-                                <button onClick={() => enrollCourse()} className="btn btn-primary w-100">
-                                <i className="bi bi-ticket"></i> Enroll
+                                <button
+                                    onClick={() => initiatePayment()}
+                                    className="btn btn-primary w-100"
+                                >
+                                    <i className="bi bi-ticket"></i> Enroll
                                 </button>
                             </div>
                         </Card.Body>

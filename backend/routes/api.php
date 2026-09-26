@@ -7,6 +7,7 @@ use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\LessonController;
 use App\Http\Controllers\front\OutcomeController;
 use App\Http\Controllers\front\RequirementController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -85,4 +86,12 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     Route::post('/update-password',[AccountController::class, 'updatePassword']);
 
 
+    //payment
+    Route::post('/initiate-payment', [PaymentController::class, 'initiate']);
+
+
 });
+
+
+    Route::get('/esewa/success', [PaymentController::class, 'success']);
+    Route::get('/esewa/failure', [PaymentController::class, 'failure']);

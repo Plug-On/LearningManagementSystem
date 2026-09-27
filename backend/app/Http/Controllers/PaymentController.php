@@ -216,10 +216,7 @@ public function success(Request $request)
         }
 
         // Send user back to React
-        return redirect(
-            env('FRONTEND_URL') .
-            '/account/my-learning'
-        );
+       return redirect('http://localhost:5173/account/my-learning');
 
     } catch (\Exception $e) {
 

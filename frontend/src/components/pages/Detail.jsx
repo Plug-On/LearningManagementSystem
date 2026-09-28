@@ -9,6 +9,7 @@ import { LuMonitorPlay } from "react-icons/lu";
 import Loading from '../common/Loading'
 import FreePreview from '../common/FreePreview'
 import toast from 'react-hot-toast'
+import RecommendedCourses from '../common/RecommendedCourses'
 
 const Detail = () => {
     const [rating, setRating] = useState(4.0)
@@ -397,6 +398,9 @@ const Detail = () => {
                     </div>
                 </div>
             </div>
+
+
+            <RecommendedCourses courseId={course.id} />
         </div>
 
         }

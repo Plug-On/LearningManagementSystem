@@ -1,5 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { PiCertificateFill } from "react-icons/pi";
+import { FaPlay } from "react-icons/fa";
 
 const CourseEnrolled = ({enrollment}) => {
   return (
@@ -51,14 +53,39 @@ const CourseEnrolled = ({enrollment}) => {
                     </div>
                 </div>
             </div>
+
             <div className="card-footer bg-white">
                 <div className="d-flex py-2 justify-content-between align-items-center">
-                    <div className="add-to-cart">
-                        <Link to={`/account/watch-course/${enrollment.course.id}`} className="btn btn-primary" >Watch Now</Link>
+
+                    <div className="add-to-cart d-flex align-items-center gap-2">
+                        <Link 
+                            to={`/account/watch-course/${enrollment.course.id}`} 
+                            className="btn btn-primary"
+                        >
+                            <FaPlay />
+                        </Link>
+
+                        {
+                            enrollment.progress >= 100 && enrollment.certificate && (
+                                <Link 
+                                    to={`/account/certificate/${enrollment.certificate.id}`} 
+                                    className="btn btn-success"
+                                    title="View Certificate"
+                                    
+                                >
+                                    <PiCertificateFill />
+                                </Link>
+                            )
+                        }
                     </div>
-                    <Link to={`/account/leave-rating/${enrollment.course.id}`}> Leave Rating </Link>
+
+                    <Link to={`/account/leave-rating/${enrollment.course.id}`}>
+                        Leave Rating
+                    </Link>
+
                 </div>
             </div>
+
         </div>
     </div>
   )

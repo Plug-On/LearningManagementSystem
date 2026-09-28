@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Certificate;
 
 class Course extends Model
 {
@@ -49,5 +50,10 @@ class Course extends Model
 
     public function enrollments () {
          return $this->hasMany(Enrollment::class);
+    }
+
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
     }
 }

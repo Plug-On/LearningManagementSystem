@@ -10,10 +10,12 @@ use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\Review;
 use App\Models\User;
+use App\Models\Certificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+
 
 class AccountController extends Controller
 {
@@ -104,25 +106,78 @@ class AccountController extends Controller
 
     }
 
-    public function enrollments (Request $request) {
-        $enrollments = Enrollment::where('user_id', $request->user()->id)
-                                        ->with(['course' => function($query) {
-                                            $query ->withCount('reviews');
-                                            $query->withSum('reviews', 'rating');
-                                            $query->withCount('enrollments');
-                                        }, 'course.level'])
-                                        ->get();
+    public function enrollments(Request $request){
+            $userId = $request->user()->id;
 
-        $enrollments->map(function($enrollments) {
-            $enrollments->course->rating =  $enrollments->course->reviews_count > 0 ?
-                number_format(($enrollments->course->reviews_sum_rating/ $enrollments->course->reviews_count),1) : "0.0";
-        });
+            $enrollments = Enrollment::where('user_id', $userId)
+                ->with([
+                    'course' => function ($query) {
+                        $query->withCount('reviews');
+                        $query->withSum('reviews', 'rating');
+                        $query->withCount('enrollments');
 
-        return response()->json([
+                        $query->with([
+                            'chapters.lessons' => function ($q) {
+                                $q->where('status', 1);
+                                $q->whereNotNull('video');
+                            }
+                        ]);
+                    },
+                    'course.level'
+                ])
+                ->get();
+
+            $enrollments->map(function ($enrollment) use ($userId) {
+
+                // Calculate course rating
+                $enrollment->course->rating =
+                    $enrollment->course->reviews_count > 0
+                        ? number_format(
+                            ($enrollment->course->reviews_sum_rating /
+                                $enrollment->course->reviews_count),
+                            1
+                        )
+                        : "0.0";
+
+                // Count total lessons
+                $totalLessons = $enrollment->course->chapters->sum(function ($chapter) {
+                    return $chapter->lessons->count();
+                });
+
+                // Count completed lessons
+                $completedLessonsCount = Activity::where([
+                    'user_id' => $userId,
+                    'course_id' => $enrollment->course->id,
+                    'is_completed' => 'yes'
+                ])->count();
+
+                // Calculate progress
+                $progress = $totalLessons > 0
+                    ? round(($completedLessonsCount / $totalLessons) * 100)
+                    : 0;
+
+                // Add progress to enrollment
+                $enrollment->progress = $progress;
+
+                // Get certificate if course is completed
+                $enrollment->certificate = null;
+
+                if ($progress >= 100) {
+
+                    $enrollment->certificate = Certificate::where([
+                        'user_id' => $userId,
+                        'course_id' => $enrollment->course->id
+                    ])->first();
+                }
+
+                return $enrollment;
+            });
+
+            return response()->json([
                 'status' => 200,
                 'data' => $enrollments
-            ],200);
-    }
+            ], 200);
+        }
 
 
     public function course($id, Request $request) {
@@ -265,69 +320,90 @@ class AccountController extends Controller
             ],200);
     }
 
-    public function markAsComplete(Request $request){
+    public function markAsComplete(Request $request) {
+        Activity::where([
+            'user_id' => $request->user()->id,
+            'course_id' => $request->course_id,
+            'chapter_id' => $request->chapter_id,
+            'lesson_id' => $request->lesson_id,
+        ])->update([
+            'is_completed' => "yes"
+        ]);
 
-     Activity::where([
-                'user_id' => $request->user()->id,
-                'course_id' =>$request->course_id,
-                'chapter_id' =>$request->chapter_id,
-                'lesson_id' =>$request->lesson_id,
-            ])->update([
-                'is_completed' => "yes"
-            ]);
+        // Fetch completed lessons
+        $completedLessons = Activity::where([
+            'user_id' => $request->user()->id,
+            'course_id' => $request->course_id,
+            'is_completed' => "yes"
+        ])
+        ->pluck('lesson_id')
+        ->toArray();
 
+        // Count completed lessons
+        $completedLessonsCount = Activity::where([
+            'user_id' => $request->user()->id,
+            'course_id' => $request->course_id,
+            'is_completed' => "yes"
+        ])
+        ->count();
 
-            //fetch which lesson are completed
-            $completedLessons = Activity::where([
-                'user_id' => $request->user()->id,
-                'course_id' =>$request->course_id,
-                'is_completed' => "yes"
-            ])
-            ->pluck('lesson_id')
-            ->toArray();
-
-
-            $completedLessonsCount = Activity::where([
-                'user_id' => $request->user()->id,
-                'course_id' =>$request->course_id,
-                'is_completed' => "yes"
-            ])
-            ->count();
-
-
-            $course =Course::where('id', $request->course_id)
+        // Get course
+        $course = Course::where('id', $request->course_id)
             ->withCount('chapters')
             ->with([
                 'chapters' => function($query) {
                     $query->withCount(['lessons' => function($q) {
-                        $q->where('status',1);
+                        $q->where('status', 1);
                         $q->whereNotNull('video');
                     }]);
+
                     $query->withSum(['lessons' => function($q) {
-                        $q->where('status',1);
+                        $q->where('status', 1);
                         $q->whereNotNull('video');
                     }], 'duration');
                 },
+
                 'chapters.lessons' => function($q) {
-                    $q->where('status',1);
+                    $q->where('status', 1);
                     $q->whereNotNull('video');
                 }
             ])
             ->first();
 
+        // Count total lessons
+        $totalLessons = $course->chapters->sum('lessons_count');
 
-            $totalLessons = $course->chapters->sum('lessons_count');
+        // Calculate progress
+        $progress = round(($completedLessonsCount / $totalLessons) * 100);
 
-            $progress = round(($completedLessonsCount/$totalLessons )* 100);
+        // Create certificate when course is completed
+        $certificate = null;
 
+        if ($progress >= 100) {
 
-            return response()->json([
-                'status' => 200,
-                'completedLessons' => $completedLessons,
-                'progress' => $progress,
-                'message' => "Lesson marked as complete"
-            ],200);
+            $certificate = Certificate::where([
+                'user_id' => $request->user()->id,
+                'course_id' => $request->course_id
+            ])->first();
 
+            if (!$certificate) {
+
+                $certificate = Certificate::create([
+                    'user_id' => $request->user()->id,
+                    'course_id' => $request->course_id,
+                    'certificate_id' => 'CERT-' . strtoupper(uniqid()),
+                    'issued_at' => now(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => 200,
+            'completedLessons' => $completedLessons,
+            'progress' => $progress,
+            'certificate' => $certificate,
+            'message' => "Lesson marked as complete"
+        ], 200);
     }
 
     public function saveRating(Request $request) {
@@ -452,6 +528,26 @@ class AccountController extends Controller
             'status' =>200,
             "message" => "Password has been updated successfully."
         ],200);
+    }
+
+
+    public function certificate($id, Request $request){
+        $certificate = Certificate::with(['user', 'course'])
+            ->where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if (!$certificate) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Certificate not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'data' => $certificate
+        ], 200);
     }
 
 }

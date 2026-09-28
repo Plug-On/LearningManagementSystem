@@ -17,6 +17,7 @@ import EditCourse from './components/pages/account/courses/EditCourse';
 import EditLesson from './components/pages/account/courses/EditLesson';
 import LeaveRating from './components/pages/account/courses/LeaveRating';
 import Profile from './components/pages/account/Profile';
+import Certificate from './components/pages/account/Certificate';
 
 
 
@@ -57,6 +58,15 @@ function App() {
             <RequireAuth>
             <Profile/>
         </RequireAuth>} />
+
+        <Route 
+            path='/account/certificate/:id'           
+            element={
+                <RequireAuth>
+                    <Certificate/>
+                </RequireAuth>
+            } 
+        />
 
         <Route path='/account/leave-rating/:id'           
            element={

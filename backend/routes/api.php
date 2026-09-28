@@ -89,6 +89,9 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     //payment
     Route::post('/initiate-payment', [PaymentController::class, 'initiate']);
 
+    //certificate
+    Route::get('/certificate/{id}', [AccountController::class, 'certificate']);
+
 
 });
 

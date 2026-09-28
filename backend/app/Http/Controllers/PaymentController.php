@@ -153,9 +153,10 @@ public function success(Request $request)
         $encodedData = $request->query('data');
 
         if (!$encodedData) {
-            return redirect(
-                env('FRONTEND_URL') . '/payment-failure'
-            );
+            // return redirect(
+            //     env('FRONTEND_URL') . '/payment-failure'
+            // );
+            return redirect('http://localhost:5173/account/my-learning');
         }
 
         // Decode Base64 data
@@ -216,7 +217,10 @@ public function success(Request $request)
         }
 
         // Send user back to React
-       return redirect('http://localhost:5173/account/my-learning');
+        return redirect(
+            env('FRONTEND_URL') .
+            '/account/my-learning'
+        );
 
     } catch (\Exception $e) {
 

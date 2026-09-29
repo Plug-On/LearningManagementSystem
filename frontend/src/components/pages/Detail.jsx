@@ -4,7 +4,7 @@ import Layout from '../common/Layout'
 import { Rating } from 'react-simple-star-rating'
 import ReactPlayer from 'react-player'
 import { Accordion, Badge, ListGroup, Card } from "react-bootstrap";
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom'
 import { LuMonitorPlay } from "react-icons/lu";
 import Loading from '../common/Loading'
 import FreePreview from '../common/FreePreview'
@@ -18,6 +18,7 @@ const Detail = () => {
     const [freeLesson, setFreeLesson] = useState(null)
     const params = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -162,7 +163,11 @@ const Detail = () => {
 
               useEffect(() => {
                 fetchCourse()
-              },[])
+              },[params.id])
+
+              useEffect(() => {
+                    window.scrollTo(0, 0);
+                }, [location.pathname]);
 
 
   return (

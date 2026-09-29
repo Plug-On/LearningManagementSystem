@@ -572,4 +572,103 @@ class HomeController extends Controller
             ],200);
 
     }
+
+
+    //Homepage display
+    public function popularCourses() {
+        $courses = Course::where('status', 1)
+            ->with([
+                'category',
+                'level',
+                'language'
+            ])
+            ->withCount('enrollments')
+            ->withCount('reviews')
+            ->withSum('reviews', 'rating')
+            ->orderBy('enrollments_count', 'DESC')
+            ->take(4)
+            ->get();
+
+        foreach ($courses as $course) {
+            $course->rating = $course->reviews_count > 0
+                ? number_format(
+                    $course->reviews_sum_rating / $course->reviews_count,
+                    1
+                )
+                : "0.0";
+        }
+
+        return response()->json([
+            'status' => 200,
+            'data' => $courses
+        ], 200);
+    }
+
+    public function highestRatedCourses() {
+        $courses = Course::where('status', 1)
+            ->with([
+                'category',
+                'level',
+                'language'
+            ])
+            ->withCount('enrollments')
+            ->withCount('reviews')
+            ->withSum('reviews', 'rating')
+            ->get();
+
+        foreach ($courses as $course) {
+            $course->rating = $course->reviews_count > 0
+                ? number_format(
+                    $course->reviews_sum_rating / $course->reviews_count,
+                    1
+                )
+                : "0.0";
+        }
+
+        $courses = $courses
+            ->filter(function ($course) {
+                return $course->reviews_count > 0;
+            })
+            ->sortByDesc(function ($course) {
+                return (float) $course->rating;
+            })
+            ->take(4)
+            ->values();
+
+        return response()->json([
+            'status' => 200,
+            'data' => $courses
+        ], 200);
+    }
+
+    public function latestCourses(){
+        $courses = Course::where('status', 1)
+            ->with([
+                'category',
+                'level',
+                'language'
+            ])
+            ->withCount('enrollments')
+            ->withCount('reviews')
+            ->withSum('reviews', 'rating')
+            ->orderBy('created_at', 'DESC')
+            ->take(4)
+            ->get();
+
+        foreach ($courses as $course) {
+            $course->rating = $course->reviews_count > 0
+                ? number_format(
+                    $course->reviews_sum_rating / $course->reviews_count,
+                    1
+                )
+                : "0.0";
+        }
+
+        return response()->json([
+            'status' => 200,
+            'data' => $courses
+        ], 200);
+    }
+
+    
 }

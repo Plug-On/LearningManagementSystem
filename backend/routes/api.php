@@ -22,6 +22,15 @@ Route::get('/fetch-featured-courses', [HomeController::class, 'fetchFeaturedCour
 Route::get('/fetch-courses', [HomeController::class, 'courses']);
 Route::get('/fetch-course/{id}', [HomeController::class, 'course']);
 
+//Homepage course
+Route::get('/fetch-popular-courses', [HomeController::class, 'popularCourses']);
+Route::get('/fetch-highest-rated-courses', [HomeController::class, 'highestRatedCourses']);
+Route::get('/fetch-latest-courses', [HomeController::class, 'latestCourses']);
+
+
+
+
+
 Route::get('/recommended-courses', [HomeController::class, 'recommendedCourses'])
     ->middleware('auth:sanctum');
 

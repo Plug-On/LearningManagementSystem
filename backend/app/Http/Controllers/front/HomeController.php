@@ -104,6 +104,7 @@ class HomeController extends Controller
                 'requirements',
                 'level',
             ])
+            ->withCount('enrollments')
             ->withCount('reviews')
             ->withSum('reviews', 'rating')
             ->get();
@@ -670,5 +671,5 @@ class HomeController extends Controller
         ], 200);
     }
 
-    
+
 }

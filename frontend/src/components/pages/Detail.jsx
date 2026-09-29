@@ -12,7 +12,7 @@ import toast from 'react-hot-toast'
 import RecommendedCourses from '../common/RecommendedCourses'
 
 const Detail = () => {
-    const [rating, setRating] = useState(4.0)
+    // const [rating, setRating] = useState(4.0)
     const [loading, setLoading] = useState(true)
     const [course, setCourse] = useState(null)
     const [freeLesson, setFreeLesson] = useState(null)
@@ -203,7 +203,7 @@ const Detail = () => {
                         </div>
                         <div className='d-flex ps-3'>
                             <div className="text pe-2 pt-1">{course?.rating}</div>
-                            <Rating readonly initialValue={rating} size={20} />                            
+                            <Rating readonly initialValue={course?.rating || 0} size={20} />                           
                         </div>
                     </div>
                     <div className="row mt-4">

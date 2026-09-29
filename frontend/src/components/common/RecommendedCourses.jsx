@@ -65,6 +65,17 @@ const RecommendedCourses = ({ courseId }) => {
                                     course={course}
                                     customClasses="col-lg-3 col-md-6"
                                 />
+
+                                 //This shows similarity course (for demo) 
+                                // <div className="col-lg-3 col-md-6" key={course.id}>
+                                //     <Course
+                                //         course={course}
+                                //     />
+
+                                //     <p className="mt-2 text-center">
+                                //         Similarity Score: {course.similarity_score}%
+                                //     </p>
+                                // </div>
                             )
 
                         })
